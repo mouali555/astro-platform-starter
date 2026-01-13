@@ -238,6 +238,51 @@
   if(e.key==="Enter") sendMessage();
  });
  </script>
- 
+ <!-- Ajoute ceci avant la balise </body> -->
+
+<!-- Cookie Banner -->
+<div id="cookie-banner" style="
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #111;
+  color: var(--green);
+  border-top: 1px solid var(--green);
+  padding: 15px;
+  text-align: center;
+  font-size: 14px;
+  z-index: 9999;
+  ">
+  Ce site utilise des cookies pour améliorer votre expérience. 
+  <button id="accept-cookies" style="margin-left:10px;">Accepter</button>
+  <button id="decline-cookies" style="margin-left:10px;">Refuser</button>
+</div>
+
+<script>
+  const cookieBanner = document.getElementById("cookie-banner");
+  const acceptBtn = document.getElementById("accept-cookies");
+  const declineBtn = document.getElementById("decline-cookies");
+
+  // Si déjà accepté, on cache le bandeau
+  if (localStorage.getItem("cookies_acceptés")) {
+    cookieBanner.style.display = "none";
+  }
+
+  acceptBtn.addEventListener("click", () => {
+    localStorage.setItem("cookies_acceptés", "true");
+    cookieBanner.style.display = "none";
+    console.log("Cookies acceptés par l'utilisateur.");
+    // Ici tu peux appeler une fonction d’analyse, par ex:
+    // envoyerDonneesServeur();
+  });
+
+  declineBtn.addEventListener("click", () => {
+    localStorage.setItem("cookies_acceptés", "false");
+    cookieBanner.style.display = "none";
+    console.log("Cookies refusés par l'utilisateur.");
+  });
+</script>
  </body>
  </html>
+
