@@ -17,28 +17,38 @@ body {
     font-family: system-ui, sans-serif;
 }
 
+/* 🌈 ARC-EN-CIEL */
 .rainbow {
     position: fixed;
-    inset: -50%;
+    inset: -30%;
     background: linear-gradient(
-        45deg,
-        red, orange, yellow, green, cyan, blue, violet, red
+        90deg,
+        red,
+        orange,
+        yellow,
+        lime,
+        cyan,
+        blue,
+        magenta,
+        red
     );
-    animation: spin 14s linear infinite;
-    filter: blur(120px);
-    opacity: 0.5;
+    animation: rainbowMove 6s linear infinite;
+    filter: blur(80px);
+    opacity: 0.9;
+    z-index: 0;
 }
 
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+@keyframes rainbowMove {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
 }
 
+/* 🖼️ IMAGE */
 img {
     max-width: 90vw;
     max-height: 80vh;
     border-radius: 20px;
-    box-shadow: 0 0 40px rgba(255,255,255,0.35);
+    box-shadow: 0 0 40px rgba(255,255,255,0.6);
     animation: float 4s ease-in-out infinite;
     position: relative;
     z-index: 1;
@@ -47,6 +57,39 @@ img {
 @keyframes float {
     0%,100% { transform: translateY(0); }
     50% { transform: translateY(-14px); }
+}
+
+/* 🍪 COOKIES */
+.cookies {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(20,20,20,0.95);
+    color: white;
+    padding: 14px 18px;
+    border-radius: 16px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    z-index: 10;
+}
+
+.cookies button {
+    border: none;
+    border-radius: 999px;
+    padding: 6px 14px;
+    cursor: pointer;
+}
+
+.accept {
+    background: #00ffc8;
+    color: black;
+}
+
+.decline {
+    background: #333;
+    color: white;
 }
 </style>
 </head>
@@ -57,18 +100,26 @@ img {
 
 <img src="IMG_7481.jpeg" alt="Image">
 
+<div class="cookies" id="cookies">
+    <span>🍪 Activer la musique ?</span>
+    <button class="accept" id="accept">Accepter</button>
+    <button class="decline" id="decline">Refuser</button>
+</div>
+
 <audio id="music" src="musique.mp3" loop></audio>
 
 <script>
 const music = document.getElementById("music");
+const cookies = document.getElementById("cookies");
 
-document.body.addEventListener("click", () => {
-    music.play().then(() => {
-        console.log("Musique OK");
-    }).catch(err => {
-        console.log("Erreur son :", err);
-    });
-}, { once: true });
+document.getElementById("accept").onclick = () => {
+    cookies.remove();
+    music.play().catch(() => {});
+};
+
+document.getElementById("decline").onclick = () => {
+    cookies.remove();
+};
 </script>
 
 </body>
