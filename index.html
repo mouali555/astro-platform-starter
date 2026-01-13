@@ -2,68 +2,108 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>SECURE ACCESS TERMINAL</title>
+<title>BLACKSITE TERMINAL</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+@keyframes flicker {
+  0% {opacity:1}
+  50% {opacity:.96}
+  100% {opacity:1}
+}
+
 body {
-    background: black;
-    color: #00ff99;
-    font-family: monospace;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+  background: radial-gradient(circle at center, #020202, #000);
+  color: #00ff9c;
+  font-family: "Courier New", monospace;
+  height: 100vh;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: flicker 0.15s infinite;
 }
 
 #terminal {
-    width: 420px;
-    border: 2px solid #00ff99;
-    padding: 25px;
-    box-shadow: 0 0 25px #00ff99;
+  width: 460px;
+  padding: 25px;
+  border: 2px solid #00ff9c;
+  box-shadow:
+    0 0 25px #00ff9c55,
+    inset 0 0 20px #00ff9c22;
 }
 
 h1 {
-    text-align: center;
-    font-size: 18px;
-    margin-bottom: 20px;
+  font-size: 16px;
+  text-align: center;
+  margin-bottom: 20px;
+  letter-spacing: 2px;
+}
+
+.line {
+  opacity: .8;
+  margin-bottom: 6px;
 }
 
 input, button {
-    width: 100%;
-    background: black;
-    border: 1px solid #00ff99;
-    color: #00ff99;
-    padding: 12px;
-    margin-top: 10px;
-    font-family: monospace;
+  width: 100%;
+  background: black;
+  border: 1px solid #00ff9c;
+  color: #00ff9c;
+  padding: 12px;
+  margin-top: 10px;
+  font-family: inherit;
+}
+
+input:focus {
+  outline: none;
+  box-shadow: 0 0 10px #00ff9c;
 }
 
 button {
-    cursor: pointer;
+  cursor: pointer;
+  letter-spacing: 2px;
 }
 
 button:hover {
-    background: #00ff99;
-    color: black;
+  background: #00ff9c;
+  color: black;
 }
 
 #error {
-    color: red;
-    margin-top: 10px;
-    text-align: center;
+  color: #ff3333;
+  margin-top: 10px;
+  text-align: center;
+  font-weight: bold;
 }
 
 #chat {
-    display: none;
+  display: none;
 }
 
 #messages {
-    height: 250px;
-    overflow-y: auto;
-    border: 1px solid #00ff99;
-    padding: 10px;
-    margin-bottom: 10px;
+  height: 260px;
+  overflow-y: auto;
+  border: 1px solid #00ff9c;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: #000;
+}
+
+.msg {
+  margin-bottom: 6px;
+}
+
+.me {
+  color: #00ffaa;
+}
+
+.sys {
+  color: #ffaa00;
+}
+
+.warn {
+  color: #ff3333;
 }
 </style>
 </head>
@@ -71,20 +111,24 @@ button:hover {
 <body>
 
 <div id="terminal">
-    <div id="login">
-        <h1>🔐 SECURE TERMINAL ACCESS</h1>
-        <input id="pseudo" placeholder="IDENTITY">
-        <input id="code" type="password" placeholder="ACCESS CODE">
-        <button onclick="login()">CONNECT</button>
-        <div id="error"></div>
-    </div>
+<div id="login">
+  <h1>⚠ BLACKSITE ACCESS TERMINAL ⚠</h1>
+  <div class="line">Establishing encrypted channel...</div>
+  <div class="line">Location masked ▓▓▓▓▓▓▓▓</div>
+  <div class="line">Intrusion countermeasures: ACTIVE</div>
 
-    <div id="chat">
-        <h1>🟢 ACCESS GRANTED</h1>
-        <div id="messages"></div>
-        <input id="message" placeholder="> enter message">
-        <button onclick="sendMessage()">SEND</button>
-    </div>
+  <input id="pseudo" placeholder="IDENTITY TAG">
+  <input id="code" type="password" placeholder="AUTHORIZATION KEY">
+  <button onclick="login()">INITIATE ACCESS</button>
+  <div id="error"></div>
+</div>
+
+<div id="chat">
+  <h1>🟢 ACCESS GRANTED</h1>
+  <div id="messages"></div>
+  <input id="message" placeholder="> transmit message">
+  <button onclick="sendMessage()">TRANSMIT</button>
+</div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
@@ -103,61 +147,85 @@ firebase.initializeApp({
 const db = firebase.firestore();
 const messagesRef = db.collection("messages_prives");
 
-let ACCESS_CODE = null;
+let ACCESS_HASH = null;
 let currentPseudo = null;
 
-async function loadCode() {
-    const doc = await db.collection("config").doc("access").get();
-    if (doc.exists) ACCESS_CODE = doc.data().code;
+// SHA-256
+async function sha256(text) {
+  const data = new TextEncoder().encode(text);
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function loadHash() {
+  const doc = await db.collection("config").doc("access").get();
+  if (doc.exists) ACCESS_HASH = doc.data().hash;
 }
 
 async function login() {
-    const pseudo = document.getElementById("pseudo").value.trim();
-    const code = document.getElementById("code").value.trim();
-    const error = document.getElementById("error");
+  const pseudo = document.getElementById("pseudo").value.trim();
+  const code = document.getElementById("code").value.trim();
+  const error = document.getElementById("error");
 
-    if (!ACCESS_CODE) await loadCode();
+  if (!ACCESS_HASH) await loadHash();
 
-    if (!pseudo || !code) {
-        error.textContent = "FIELDS REQUIRED";
-        return;
-    }
+  if (!pseudo || !code) {
+    error.textContent = "AUTHENTICATION FAILURE";
+    return;
+  }
 
-    if (code !== ACCESS_CODE) {
-        error.textContent = "ACCESS DENIED";
-        return;
-    }
+  const hash = await sha256(code);
+  if (hash !== ACCESS_HASH) {
+    error.textContent = "INTRUSION DETECTED";
+    return;
+  }
 
-    currentPseudo = pseudo;
-    document.getElementById("login").style.display = "none";
-    document.getElementById("chat").style.display = "block";
-    listenMessages();
+  currentPseudo = pseudo;
+  document.getElementById("login").style.display = "none";
+  document.getElementById("chat").style.display = "block";
+
+  systemMessage("Secure channel established.");
+  listenMessages();
+}
+
+function systemMessage(text) {
+  const box = document.getElementById("messages");
+  box.innerHTML += `<div class="msg sys">[SYSTEM] ${text}</div>`;
 }
 
 function listenMessages() {
-    messagesRef.orderBy("timestamp").onSnapshot(snapshot => {
-        const box = document.getElementById("messages");
-        box.innerHTML = "";
-        snapshot.forEach(doc => {
-            const m = doc.data();
-            box.innerHTML += `<div>[${m.pseudo}] ${m.message}</div>`;
-        });
-        box.scrollTop = box.scrollHeight;
+  messagesRef.orderBy("timestamp").onSnapshot(snapshot => {
+    const box = document.getElementById("messages");
+    box.innerHTML = "";
+    snapshot.forEach(doc => {
+      const m = doc.data();
+      const cls = m.pseudo === currentPseudo ? "me" : "";
+      box.innerHTML += `<div class="msg ${cls}">[${m.pseudo}] ${m.message}</div>`;
     });
+    box.scrollTop = box.scrollHeight;
+  });
 }
 
 async function sendMessage() {
-    const input = document.getElementById("message");
-    if (!input.value.trim()) return;
+  const input = document.getElementById("message");
+  if (!input.value.trim()) return;
 
-    await messagesRef.add({
-        pseudo: currentPseudo,
-        message: input.value,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
+  await messagesRef.add({
+    pseudo: currentPseudo,
+    message: input.value,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  });
 
-    input.value = "";
+  input.value = "";
 }
+
+// Basic anti-inspect deterrent
+document.addEventListener("keydown", e => {
+  if (e.key === "F12" || (e.ctrlKey && e.shiftKey && e.key === "I")) {
+    e.preventDefault();
+    document.body.innerHTML = "<h1 style='color:red;text-align:center'>TERMINAL LOCKED</h1>";
+  }
+});
 </script>
 
 </body>
