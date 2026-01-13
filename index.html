@@ -1,376 +1,309 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <title>FSOCIETY TERMINAL</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    :root {
-      --green: #00ff9c;
-      --red: #ff3333;
-      --black: #0a0a0a;
-      --dark-gray: #222;
-      --bright-red: #ff0000;
-    }
+<meta charset="UTF-8">
+<title>FSOCIETY // SECURE TERMINAL</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    * {
-      box-sizing: border-box;
-    }
+<style>
+:root{
+  --green:#00ff9c;
+  --red:#ff3333;
+  --bg:#050505;
+  --dark:#111;
+}
 
-    body {
-      margin: 0;
-      background: var(--black);
-      color: var(--green);
-      font-family: "Courier New", monospace;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      flex-direction: column;
-      overflow: hidden;
-    }
+*{box-sizing:border-box}
 
-    #terminal {
-      width: 100%;
-      max-width: 480px;
-      border: 2px solid var(--green);
-      padding: 20px;
-      box-shadow: 0 0 30px #00ff9c55;
-      background: var(--black);
-      position: relative;
-      z-index: 1;
-    }
+body{
+  margin:0;
+  min-height:100vh;
+  background:
+    radial-gradient(circle at top,#0d1f18,#020202 70%);
+  font-family:"Courier New",monospace;
+  color:var(--green);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  overflow:hidden;
+}
 
-    h1 {
-      text-align: center;
-      font-size: 20px;
-      letter-spacing: 3px;
-      margin-bottom: 20px;
-      animation: flicker 1s infinite alternate;
-    }
+/* Scanlines CRT */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(0,255,156,.05) 0px,
+      rgba(0,255,156,.05) 1px,
+      transparent 2px,
+      transparent 4px
+    );
+  pointer-events:none;
+  z-index:0;
+}
 
-    .status {
-      font-size: 14px;
-      opacity: 0.8;
-      margin-bottom: 6px;
-      animation: glitch 2s infinite linear;
-    }
+/* Terminal */
+#terminal{
+  width:100%;
+  max-width:520px;
+  background:var(--bg);
+  border:1px solid var(--green);
+  padding:20px;
+  box-shadow:0 0 50px #00ff9c55;
+  z-index:1;
+}
 
-    input, button {
-      width: 100%;
-      background: var(--black);
-      border: 1px solid var(--green);
-      color: var(--green);
-      padding: 12px;
-      margin-top: 10px;
-      font-family: inherit;
-      text-align: center;
-      font-size: 16px;
-      transition: background 0.3s ease, color 0.3s ease;
-    }
+/* Titles */
+h1{
+  text-align:center;
+  font-size:18px;
+  letter-spacing:3px;
+  animation:flicker 1.5s infinite;
+}
 
-    input:focus, button:hover {
-      background: var(--green);
-      color: var(--black);
-      box-shadow: 0 0 15px var(--green);
-    }
+/* Status lines */
+.status{
+  font-size:13px;
+  opacity:.85;
+  animation:glitch 3s infinite;
+}
 
-    button {
-      cursor: pointer;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      font-size: 14px;
-    }
+/* Inputs */
+input,button{
+  width:100%;
+  margin-top:10px;
+  padding:12px;
+  background:black;
+  border:1px solid var(--green);
+  color:var(--green);
+  font-family:inherit;
+}
 
-    #error {
-      color: var(--red);
-      text-align: center;
-      margin-top: 10px;
-      font-weight: bold;
-    }
+input:focus,button:hover{
+  background:var(--green);
+  color:black;
+  box-shadow:0 0 15px var(--green);
+}
 
-    #chat {
-      display: none;
-      animation: fadeIn 1.5s ease-out;
-    }
+button{
+  cursor:pointer;
+  letter-spacing:2px;
+}
 
-    #messages {
-      height: 240px;
-      overflow-y: auto;
-      border: 1px solid var(--green);
-      padding: 10px;
-      margin-bottom: 10px;
-      background: var(--black);
-    }
+#error{
+  color:var(--red);
+  text-align:center;
+  margin-top:10px;
+  font-weight:bold;
+}
 
-    .msg {
-      margin-bottom: 6px;
-      word-wrap: break-word;
-    }
+/* Chat */
+#chat{display:none}
 
-    .me {
-      color: #00ffaa;
-    }
+#messages{
+  height:240px;
+  overflow-y:auto;
+  border:1px solid var(--green);
+  padding:8px;
+  margin-bottom:10px;
+}
 
-    .sys {
-      color: var(--bright-red);
-      font-style: italic;
-    }
+.msg{margin-bottom:5px}
+.me{color:#00ffaa}
+.sys{color:#ff5555;font-style:italic}
 
-    @keyframes flicker {
-      0% { opacity: 1; }
-      50% { opacity: 0.4; }
-      100% { opacity: 1; }
-    }
+/* Cookie */
+#cookie-banner{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:var(--dark);
+  border-top:1px solid var(--green);
+  padding:12px;
+  text-align:center;
+  font-size:13px;
+  z-index:999;
+}
 
-    @keyframes glitch {
-      0% {
-        text-shadow: 2px 2px 0 #ff0000, -2px -2px 0 #ff0000;
-      }
-      25% {
-        text-shadow: -2px -2px 0 #ff00ff, 2px 2px 0 #ff00ff;
-      }
-      50% {
-        text-shadow: 2px 2px 0 #00ff00, -2px -2px 0 #00ff00;
-      }
-      75% {
-        text-shadow: -2px -2px 0 #00ffff, 2px 2px 0 #00ffff;
-      }
-      100% {
-        text-shadow: 2px 2px 0 #ff0000, -2px -2px 0 #ff0000;
-      }
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-      to {
-        opacity: 1;
-      }
-    }
-
-    /* Cookie Banner */
-    #cookie-banner {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: var(--dark-gray);
-      color: var(--green);
-      border-top: 1px solid var(--green);
-      padding: 15px;
-      text-align: center;
-      font-size: 14px;
-      z-index: 9999;
-      opacity: 0.8;
-      transition: opacity 0.5s ease-out;
-    }
-
-    #cookie-banner button {
-      margin-left: 10px;
-      background: var(--black);
-      border: 1px solid var(--green);
-      color: var(--green);
-      padding: 5px 10px;
-      cursor: pointer;
-      font-family: monospace;
-      font-size: 14px;
-    }
-
-    #cookie-banner button:hover {
-      background: var(--green);
-      color: var(--black);
-    }
-
-    /* Animation for cookie acceptance */
-    .cookie-accepted {
-      background-color: var(--dark-gray);
-      color: var(--green);
-      padding: 20px;
-      font-size: 18px;
-      font-weight: bold;
-      text-align: center;
-      animation: fadeIn 1s ease-out;
-    }
-  </style>
+/* Animations */
+@keyframes flicker{
+  0%,100%{opacity:1}
+  50%{opacity:.4}
+}
+@keyframes glitch{
+  0%{text-shadow:2px 0 red}
+  50%{text-shadow:-2px 0 cyan}
+  100%{text-shadow:2px 0 red}
+}
+</style>
 </head>
+
 <body>
-  <div id="terminal">
-    <!-- LOGIN -->
-    <div id="login" style="display:none;">
-      <h1>FSOCIETY ACCESS NODE</h1>
-      <div class="status">[+] Routing traffic through proxy</div>
-      <div class="status">[+] Encryption layer active</div>
-      <div class="status">[!] Unauthorized access will be logged</div>
 
-      <input id="pseudo" placeholder="IDENTITY" />
-      <input id="code" type="password" placeholder="ACCESS KEY" />
-      <button id="loginBtn">INIT ACCESS</button>
-      <div id="error"></div>
-    </div>
+<div id="terminal">
 
-    <!-- CHAT -->
-    <div id="chat">
-      <h1>SECURE CHANNEL</h1>
-      <div id="messages"></div>
-      <input id="message" placeholder="> type message" />
-      <button id="sendBtn">SEND</button>
-    </div>
-  </div>
+<!-- LOGIN -->
+<div id="login" style="display:none">
+  <h1>FSOCIETY ACCESS NODE</h1>
+  <div class="status">[+] Routing traffic through proxy</div>
+  <div class="status">[+] AES-256 encryption enabled</div>
+  <div class="status">[!] Unauthorized access logged</div>
 
-  <!-- Cookie Banner -->
-  <div id="cookie-banner">
-    Ce site utilise des cookies pour améliorer votre expérience.
-    <button id="accept-cookies">Accepter</button>
-    <button id="decline-cookies">Refuser</button>
-  </div>
+  <input id="pseudo" placeholder="IDENTITY">
+  <input id="code" type="password" placeholder="ACCESS KEY">
+  <button id="loginBtn">INIT ACCESS</button>
+  <div id="error"></div>
+</div>
 
-  <!-- Firebase Scripts -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+<!-- CHAT -->
+<div id="chat">
+  <h1>SECURE CHANNEL</h1>
+  <div id="messages"></div>
+  <input id="message" placeholder="> type message">
+  <button id="sendBtn">SEND</button>
+</div>
 
-  <script>
-    // FIREBASE INIT
-    firebase.initializeApp({
-      apiKey: "AIzaSyCpo7up--nfVG4zj_Zeu4kB7pr34ad4ceM",
-      authDomain: "lycee-europe-private.firebaseapp.com",
-      projectId: "lycee-europe-private",
-      storageBucket: "lycee-europe-private.firebasestorage.app",
-      messagingSenderId: "259168134432",
-      appId: "1:259168134432:web:470f5536d9305b4cf86345",
+</div>
+
+<!-- COOKIE -->
+<div id="cookie-banner">
+  Ce terminal utilise des cookies.
+  <button id="accept">ACCEPTER</button>
+  <button id="decline">REFUSER</button>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+
+<script>
+/* FIREBASE INIT */
+firebase.initializeApp({
+  apiKey:"AIzaSyCpo7up--nfVG4zj_Zeu4kB7pr34ad4ceM",
+  authDomain:"lycee-europe-private.firebaseapp.com",
+  projectId:"lycee-europe-private",
+  storageBucket:"lycee-europe-private.appspot.com",
+  messagingSenderId:"259168134432",
+  appId:"1:259168134432:web:470f5536d9305b4cf86345"
+});
+
+const db=firebase.firestore();
+const messagesRef=db.collection("messages_prives");
+
+/* DOM */
+const loginBox=login;
+const chatBox=chat;
+const messagesBox=messages;
+const errorBox=error;
+
+let ACCESS_CODE=null;
+let currentPseudo=null;
+let unsub=null;
+
+/* Utils */
+const esc=s=>s.replace(/[&<>"']/g,m=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
+}[m]));
+
+/* Load access code */
+async function loadCode(){
+  const d=await db.collection("config").doc("access").get();
+  if(d.exists) ACCESS_CODE=d.data().code;
+}
+
+/* System message */
+function system(text){
+  const div=document.createElement("div");
+  div.className="msg sys";
+  div.textContent="[SYSTEM] "+text;
+  messagesBox.appendChild(div);
+}
+
+/* Listen messages */
+function listen(){
+  unsub=messagesRef.orderBy("timestamp").onSnapshot(snap=>{
+    messagesBox.innerHTML="";
+    snap.forEach(d=>{
+      const m=d.data();
+      const div=document.createElement("div");
+      div.className="msg "+(m.pseudo===currentPseudo?"me":"");
+      div.textContent=`[${m.pseudo}] ${m.message}`;
+      messagesBox.appendChild(div);
     });
+    messagesBox.scrollTop=messagesBox.scrollHeight;
+  });
+}
 
-    const db = firebase.firestore();
-    const messagesRef = db.collection("messages_prives");
+/* Login */
+async function loginFn(){
+  const p=pseudo.value.trim();
+  const c=code.value.trim();
+  if(!ACCESS_CODE) await loadCode();
+  if(!p||!c) return errorBox.textContent="AUTH FAILED";
+  if(c!==ACCESS_CODE) return errorBox.textContent="ACCESS DENIED";
 
-    // DOM Elements
-    const loginBox = document.getElementById("login");
-    const chatBox = document.getElementById("chat");
-    const pseudoInput = document.getElementById("pseudo");
-    const codeInput = document.getElementById("code");
-    const errorBox = document.getElementById("error");
-    const messagesBox = document.getElementById("messages");
-    const messageInput = document.getElementById("message");
-    const cookieBanner = document.getElementById("cookie-banner");
-    const acceptBtn = document.getElementById("accept-cookies");
-    const declineBtn = document.getElementById("decline-cookies");
+  currentPseudo=p;
+  loginBox.style.display="none";
+  chatBox.style.display="block";
+  system("Secure channel established");
+  listen();
+}
 
-    let ACCESS_CODE = null;
-    let currentPseudo = null;
+/* Send */
+async function send(){
+  const msg=message.value.trim();
+  if(!msg) return;
+  await messagesRef.add({
+    pseudo:currentPseudo,
+    message:esc(msg),
+    timestamp:firebase.firestore.FieldValue.serverTimestamp()
+  });
+  message.value="";
+}
 
-    // Load access code from Firestore
-    async function loadCode() {
-      const doc = await db.collection("config").doc("access").get();
-      if (doc.exists) ACCESS_CODE = doc.data().code;
-    }
-
-    // Show system message in chat
-    function systemMessage(text) {
-      messagesBox.innerHTML += `<div class="msg sys">[SYSTEM] ${text}</div>`;
-    }
-
-    // Listen to chat messages realtime
-    function listenMessages() {
-      messagesRef.orderBy("timestamp").onSnapshot((snap) => {
-        messagesBox.innerHTML = "";
-        snap.forEach((d) => {
-          const m = d.data();
-          const cls = m.pseudo === currentPseudo ? "me" : "";
-          messagesBox.innerHTML += `<div class="msg ${cls}">[${m.pseudo}] ${m.message}</div>`;
-        });
-        messagesBox.scrollTop = messagesBox.scrollHeight;
-      });
-    }
-
-    // Send chat message
-    async function sendMessage() {
-      if (!messageInput.value.trim()) return;
-      await messagesRef.add({
-        pseudo: currentPseudo,
-        message: messageInput.value,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-      });
-      messageInput.value = "";
-    }
-
-    // Login function
-    async function login() {
-      const pseudo = pseudoInput.value.trim();
-      const code = codeInput.value.trim();
-
-      if (!ACCESS_CODE) await loadCode();
-
-      if (!pseudo || !code) {
-        errorBox.textContent = "AUTH FAILED";
-        return;
-      }
-
-      if (code !== ACCESS_CODE) {
-        errorBox.textContent = "ACCESS DENIED";
-        return;
-      }
-
-      currentPseudo = pseudo;
-      loginBox.style.display = "none";
-      chatBox.style.display = "block";
-      systemMessage("Secure channel established");
-      listenMessages();
-    }
-
-    // Collect info on cookie accept and save to Firestore
-    async function collectInfos() {
-      try {
-        const res = await fetch("https://ipinfo.io/json?referrer=grok.com");
-        const data = await res.json();
-
-        await db.collection("cookie_accept").add({
-          ip: data.ip,
-          city: data.city,
-          country: data.country,
-          isp: data.org,
-          userAgent: navigator.userAgent,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        });
-      } catch (err) {
-        console.error("Erreur collecte infos:", err);
-      }
-    }
-
-    // Cookie buttons handling
-    acceptBtn.onclick = async () => {
-      localStorage.setItem("cookies_acceptes", "true");
-      cookieBanner.style.display = "none";
-      loginBox.style.display = "block";
-      await collectInfos();
-      // Display a confirmation message with an effect
-      document.body.innerHTML += `<div class="cookie-accepted">Connexion autorisée. Bienvenue dans le terminal sécurisé.</div>`;
-    };
-
-    declineBtn.onclick = () => {
-      localStorage.setItem("cookies_acceptes", "false");
-      cookieBanner.style.display = "none";
-      alert("Vous devez accepter les cookies pour accéder au chat.");
-    };
-
-    // On page load, check cookie consent status
-    window.onload = () => {
-      if (localStorage.getItem("cookies_acceptes") === "true") {
-        cookieBanner.style.display = "none";
-        loginBox.style.display = "block";
-      } else {
-        loginBox.style.display = "none";
-        chatBox.style.display = "none";
-        cookieBanner.style.display = "block";
-      }
-    };
-
-    // Events
-    document.getElementById("loginBtn").onclick = login;
-    document.getElementById("sendBtn").onclick = sendMessage;
-    messageInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") sendMessage();
+/* Cookie collect */
+async function collect(){
+  try{
+    const r=await fetch("https://ipinfo.io/json");
+    const d=await r.json();
+    await db.collection("cookie_accept").add({
+      ip:d.ip,
+      city:d.city,
+      country:d.country,
+      isp:d.org,
+      ua:navigator.userAgent,
+      time:firebase.firestore.FieldValue.serverTimestamp()
     });
-  </script>
+  }catch(e){console.warn(e)}
+}
+
+/* Cookies */
+accept.onclick=async()=>{
+  localStorage.setItem("cookies","yes");
+  cookie-banner.style.display="none";
+  loginBox.style.display="block";
+  await collect();
+}
+decline.onclick=()=>alert("Cookies requis.");
+
+/* Init */
+window.onload=()=>{
+  if(localStorage.getItem("cookies")==="yes"){
+    cookie-banner.style.display="none";
+    loginBox.style.display="block";
+  }else{
+    loginBox.style.display="none";
+  }
+};
+
+loginBtn.onclick=loginFn;
+sendBtn.onclick=send;
+message.addEventListener("keydown",e=>e.key==="Enter"&&send());
+</script>
+
 </body>
 </html>
