@@ -8,99 +8,145 @@
     :root {
       --green: #00ff9c;
       --red: #ff3333;
+      --black: #0a0a0a;
+      --dark-gray: #222;
+      --bright-red: #ff0000;
     }
+
     * {
       box-sizing: border-box;
     }
+
     body {
       margin: 0;
-      background: black;
+      background: var(--black);
       color: var(--green);
-      font-family: monospace;
+      font-family: "Courier New", monospace;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
       flex-direction: column;
+      overflow: hidden;
     }
+
     #terminal {
       width: 100%;
       max-width: 480px;
       border: 2px solid var(--green);
       padding: 20px;
       box-shadow: 0 0 30px #00ff9c55;
-      background: black;
+      background: var(--black);
+      position: relative;
+      z-index: 1;
     }
+
     h1 {
       text-align: center;
-      font-size: 15px;
+      font-size: 20px;
       letter-spacing: 3px;
       margin-bottom: 20px;
+      animation: flicker 1s infinite alternate;
     }
+
     .status {
-      font-size: 12px;
+      font-size: 14px;
       opacity: 0.8;
       margin-bottom: 6px;
+      animation: glitch 2s infinite linear;
     }
-    input,
-    button {
+
+    input, button {
       width: 100%;
-      background: black;
+      background: var(--black);
       border: 1px solid var(--green);
       color: var(--green);
       padding: 12px;
       margin-top: 10px;
       font-family: inherit;
+      text-align: center;
+      font-size: 16px;
+      transition: background 0.3s ease, color 0.3s ease;
     }
-    input:focus {
-      outline: none;
-      box-shadow: 0 0 10px var(--green);
+
+    input:focus, button:hover {
+      background: var(--green);
+      color: var(--black);
+      box-shadow: 0 0 15px var(--green);
     }
+
     button {
       cursor: pointer;
       letter-spacing: 2px;
+      text-transform: uppercase;
+      font-size: 14px;
     }
-    button:hover {
-      background: var(--green);
-      color: black;
-    }
+
     #error {
       color: var(--red);
       text-align: center;
       margin-top: 10px;
       font-weight: bold;
     }
+
     #chat {
       display: none;
+      animation: fadeIn 1.5s ease-out;
     }
+
     #messages {
       height: 240px;
       overflow-y: auto;
       border: 1px solid var(--green);
       padding: 10px;
       margin-bottom: 10px;
-      background: black;
+      background: var(--black);
     }
+
     .msg {
       margin-bottom: 6px;
       word-wrap: break-word;
     }
+
     .me {
       color: #00ffaa;
     }
+
     .sys {
-      color: #ffaa00;
+      color: var(--bright-red);
+      font-style: italic;
     }
-    @media (max-width: 480px) {
-      #terminal {
-        border: none;
-        box-shadow: none;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
+
+    @keyframes flicker {
+      0% { opacity: 1; }
+      50% { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
+
+    @keyframes glitch {
+      0% {
+        text-shadow: 2px 2px 0 #ff0000, -2px -2px 0 #ff0000;
       }
-      #messages {
-        flex: 1;
+      25% {
+        text-shadow: -2px -2px 0 #ff00ff, 2px 2px 0 #ff00ff;
+      }
+      50% {
+        text-shadow: 2px 2px 0 #00ff00, -2px -2px 0 #00ff00;
+      }
+      75% {
+        text-shadow: -2px -2px 0 #00ffff, 2px 2px 0 #00ffff;
+      }
+      100% {
+        text-shadow: 2px 2px 0 #ff0000, -2px -2px 0 #ff0000;
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
       }
     }
 
@@ -110,26 +156,42 @@
       bottom: 0;
       left: 0;
       right: 0;
-      background: #111;
+      background: var(--dark-gray);
       color: var(--green);
       border-top: 1px solid var(--green);
       padding: 15px;
       text-align: center;
       font-size: 14px;
       z-index: 9999;
+      opacity: 0.8;
+      transition: opacity 0.5s ease-out;
     }
+
     #cookie-banner button {
       margin-left: 10px;
-      background: black;
+      background: var(--black);
       border: 1px solid var(--green);
       color: var(--green);
       padding: 5px 10px;
       cursor: pointer;
       font-family: monospace;
+      font-size: 14px;
     }
+
     #cookie-banner button:hover {
       background: var(--green);
-      color: black;
+      color: var(--black);
+    }
+
+    /* Animation for cookie acceptance */
+    .cookie-accepted {
+      background-color: var(--dark-gray);
+      color: var(--green);
+      padding: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      animation: fadeIn 1s ease-out;
     }
   </style>
 </head>
@@ -281,6 +343,8 @@
       cookieBanner.style.display = "none";
       loginBox.style.display = "block";
       await collectInfos();
+      // Display a confirmation message with an effect
+      document.body.innerHTML += `<div class="cookie-accepted">Connexion autorisée. Bienvenue dans le terminal sécurisé.</div>`;
     };
 
     declineBtn.onclick = () => {
