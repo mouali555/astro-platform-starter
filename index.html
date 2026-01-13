@@ -1,126 +1,75 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rainbow Experience</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rainbow Experience</title>
 
-    <style>
-        body {
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: #000;
-            overflow: hidden;
-            font-family: system-ui, sans-serif;
-        }
+<style>
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: #000;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: system-ui, sans-serif;
+}
 
-        body::before {
-            content: "";
-            position: absolute;
-            inset: -60%;
-            background: linear-gradient(
-                45deg,
-                red, orange, yellow, green, cyan, blue, violet, red
-            );
-            animation: spin 14s linear infinite;
-            filter: blur(140px);
-            opacity: 0.45;
-        }
+.rainbow {
+    position: fixed;
+    inset: -50%;
+    background: linear-gradient(
+        45deg,
+        red, orange, yellow, green, cyan, blue, violet, red
+    );
+    animation: spin 14s linear infinite;
+    filter: blur(120px);
+    opacity: 0.5;
+}
 
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
 
-        img {
-            max-width: 90vw;
-            max-height: 80vh;
-            border-radius: 20px;
-            box-shadow: 0 0 40px rgba(255,255,255,0.35);
-            animation: float 4s ease-in-out infinite;
-            z-index: 1;
-        }
+img {
+    max-width: 90vw;
+    max-height: 80vh;
+    border-radius: 20px;
+    box-shadow: 0 0 40px rgba(255,255,255,0.35);
+    animation: float 4s ease-in-out infinite;
+    position: relative;
+    z-index: 1;
+}
 
-        @keyframes float {
-            0%,100% { transform: translateY(0); }
-            50% { transform: translateY(-14px); }
-        }
-
-        /* 🍪 Banner cookies */
-        .cookies {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(20,20,20,0.9);
-            backdrop-filter: blur(10px);
-            color: white;
-            padding: 16px 20px;
-            border-radius: 16px;
-            display: flex;
-            gap: 14px;
-            align-items: center;
-            z-index: 10;
-            box-shadow: 0 0 30px rgba(255,255,255,0.15);
-        }
-
-        .cookies button {
-            border: none;
-            border-radius: 999px;
-            padding: 8px 16px;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
-        .accept {
-            background: linear-gradient(90deg, #00ffcc, #00ccff);
-            color: black;
-        }
-
-        .decline {
-            background: #333;
-            color: white;
-        }
-    </style>
+@keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-14px); }
+}
+</style>
 </head>
+
 <body>
 
-    <img src="IMG_7481.jpeg" alt="Rainbow Image">
+<div class="rainbow"></div>
 
-    <!-- 🍪 Cookies -->
-    <div class="cookies" id="cookieBanner">
-        <span>🍪 Accepter les cookies pour une expérience sonore</span>
-        <button class="accept" id="accept">Accepter</button>
-        <button class="decline" id="decline">Refuser</button>
-    </div>
+<img src="IMG_7481.jpeg" alt="Image">
 
-    <!-- 🎵 Musique -->
-    <audio id="music" loop>
-        <source src="ambient.mp3" type="audio/mpeg">
-    </audio>
+<audio id="music" src="musique.mp3" loop></audio>
 
-    <script>
-        const music = document.getElementById("music");
-        const banner = document.getElementById("cookieBanner");
+<script>
+const music = document.getElementById("music");
 
-        if (localStorage.getItem("cookiesAccepted")) {
-            banner.remove();
-            music.play().catch(() => {});
-        }
-
-        document.getElementById("accept").onclick = () => {
-            localStorage.setItem("cookiesAccepted", "true");
-            banner.remove();
-            music.play();
-        };
-
-        document.getElementById("decline").onclick = () => {
-            banner.remove();
-        };
-    </script>
+document.body.addEventListener("click", () => {
+    music.play().then(() => {
+        console.log("Musique OK");
+    }).catch(err => {
+        console.log("Erreur son :", err);
+    });
+}, { once: true });
+</script>
 
 </body>
 </html>
