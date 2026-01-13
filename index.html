@@ -8,10 +8,9 @@
 <style>
 @keyframes flicker {
   0% {opacity:1}
-  50% {opacity:.97}
+  50% {opacity:.96}
   100% {opacity:1}
 }
-
 @keyframes glitch {
   0% {text-shadow:2px 0 red,-2px 0 cyan}
   50% {text-shadow:-2px 0 red,2px 0 cyan}
@@ -23,11 +22,11 @@ body {
   background:black;
   color:#00ff9c;
   font-family:Courier, monospace;
-  height:100vh;
+  min-height:100vh;
   display:flex;
   justify-content:center;
   align-items:center;
-  animation:flicker .12s infinite;
+  animation:flicker .15s infinite;
   cursor:crosshair;
   user-select:none;
 }
@@ -35,8 +34,9 @@ body {
 #noise {
   position:fixed;
   inset:0;
-  background:url("https://i.imgur.com/8pQeG5g.png");
-  opacity:.03;
+  background:radial-gradient(#ffffff10 1px, transparent 1px);
+  background-size:3px 3px;
+  opacity:.05;
   pointer-events:none;
 }
 
@@ -52,12 +52,12 @@ h1 {
   font-size:14px;
   text-align:center;
   letter-spacing:3px;
-  animation:glitch .3s infinite;
+  animation:glitch .35s infinite;
 }
 
 .line {
   font-size:12px;
-  opacity:.8;
+  opacity:.75;
 }
 
 input,button {
@@ -73,6 +73,7 @@ input,button {
 button:hover {
   background:#00ff9c;
   color:black;
+  cursor:pointer;
 }
 
 #error {
@@ -103,18 +104,20 @@ button:hover {
 
 <div id="terminal">
 
+<!-- LOGIN -->
 <div id="login">
 <h1>FSOCIETY ACCESS</h1>
-<div class="line">> establishing secure tunnel</div>
-<div class="line">> masking location</div>
-<div class="line">> monitoring keystrokes</div>
+<div class="line">> routing traffic</div>
+<div class="line">> encryption active</div>
+<div class="line">> unauthorized access logged</div>
 
 <input id="pseudo" placeholder="IDENTITY">
-<input id="code" type="password" placeholder="AUTH KEY">
+<input id="code" type="password" placeholder="ACCESS KEY">
 <button id="loginBtn">ENTER</button>
 <div id="error"></div>
 </div>
 
+<!-- CHAT -->
 <div id="chat">
 <h1>SECURE CHANNEL</h1>
 <div id="messages"></div>
@@ -128,78 +131,97 @@ button:hover {
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
 
 <script>
+/* 🔥 FIREBASE CONFIG — COMPLET */
 firebase.initializeApp({
-  apiKey:"AIzaSyCpo7up--nfVG4zj_Zeu4kB7pr34ad4ceM",
-  authDomain:"lycee-europe-private.firebaseapp.com",
-  projectId:"lycee-europe-private"
+  apiKey: "AIzaSyCpo7up--nfVG4zj_Zeu4kB7pr34ad4ceM",
+  authDomain: "lycee-europe-private.firebaseapp.com",
+  projectId: "lycee-europe-private",
+  storageBucket: "lycee-europe-private.firebasestorage.app",
+  messagingSenderId: "259168134432",
+  appId: "1:259168134432:web:470f5536d9305b4cf86345"
 });
 
-const db=firebase.firestore();
-const messagesRef=db.collection("messages_prives");
+const db = firebase.firestore();
+const messagesRef = db.collection("messages_prives");
 
-let ACCESS_CODE=null;
-let user=null;
+/* STATE */
+let ACCESS_CODE = null;
+let currentUser = null;
 
-async function loadCode(){
- const d=await db.collection("config").doc("access").get();
- if(d.exists) ACCESS_CODE=d.data().code;
+/* LOAD ACCESS */
+async function loadCode() {
+  const doc = await db.collection("config").doc("access").get();
+  if (doc.exists) ACCESS_CODE = doc.data().code;
 }
 
-async function login(){
- const p=pseudo.value.trim();
- const c=code.value.trim();
- if(!ACCESS_CODE) await loadCode();
+/* LOGIN */
+async function login() {
+  const p = pseudo.value.trim();
+  const c = code.value.trim();
 
- if(!p||!c){
-   error.textContent="AUTH FAILURE";
-   return;
- }
- if(c!==ACCESS_CODE){
-   error.textContent="INTRUSION DETECTED";
-   return;
- }
+  if (!ACCESS_CODE) await loadCode();
 
- user=p;
- login.style.display="none";
- chat.style.display="block";
- sys("CONNECTED");
- listen();
+  if (!p || !c) {
+    error.textContent = "AUTH FAILED";
+    return;
+  }
+
+  if (c !== ACCESS_CODE) {
+    error.textContent = "ACCESS DENIED";
+    return;
+  }
+
+  currentUser = p;
+  login.style.display = "none";
+  chat.style.display = "block";
+  systemMessage("SECURE LINK ESTABLISHED");
+  listenMessages();
 }
 
-function sys(t){
- messages.innerHTML+=`<div class="msg sys">[SYS] ${t}</div>`;
+/* SYSTEM MSG */
+function systemMessage(text) {
+  messages.innerHTML += `<div class="msg sys">[SYS] ${text}</div>`;
 }
 
-function listen(){
- messagesRef.orderBy("timestamp").onSnapshot(s=>{
-   messages.innerHTML="";
-   s.forEach(d=>{
-     const m=d.data();
-     messages.innerHTML+=`<div class="msg ${m.pseudo===user?"me":""}">[${m.pseudo}] ${m.message}</div>`;
-   });
-   messages.scrollTop=messages.scrollHeight;
- });
+/* LISTEN CHAT */
+function listenMessages() {
+  messagesRef.orderBy("timestamp").onSnapshot(snapshot => {
+    messages.innerHTML = "";
+    snapshot.forEach(doc => {
+      const m = doc.data();
+      messages.innerHTML += `
+        <div class="msg ${m.pseudo === currentUser ? 'me' : ''}">
+          [${m.pseudo}] ${m.message}
+        </div>`;
+    });
+    messages.scrollTop = messages.scrollHeight;
+  });
 }
 
-async function send(){
- if(!message.value.trim()) return;
- await messagesRef.add({
-   pseudo:user,
-   message:message.value,
-   timestamp:firebase.firestore.FieldValue.serverTimestamp()
- });
- message.value="";
+/* SEND */
+async function sendMessage() {
+  if (!message.value.trim()) return;
+
+  await messagesRef.add({
+    pseudo: currentUser,
+    message: message.value,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  message.value = "";
 }
 
-loginBtn.onclick=login;
-sendBtn.onclick=send;
-message.onkeydown=e=>{if(e.key==="Enter")send();}
+/* EVENTS */
+loginBtn.onclick = login;
+sendBtn.onclick = sendMessage;
+message.onkeydown = e => { if (e.key === "Enter") sendMessage(); };
 
-// ANTI DEVTOOLS (FAKE)
-document.addEventListener("keydown",e=>{
- if(e.key==="F12"){
-   document.body.innerHTML="<h1 style='color:red;text-align:center'>SESSION TERMINATED</h1>";
- }
+/* FAKE ANTI-DEV */
+document.addEventListener("keydown", e => {
+  if (e.key === "F12") {
+    document.body.innerHTML =
+      "<h1 style='color:red;text-align:center'>SESSION TERMINATED</h1>";
+  }
 });
 </script>
 
