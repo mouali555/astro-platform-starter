@@ -2,108 +2,116 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>BLACKSITE TERMINAL</title>
+<title>FSOCIETY TERMINAL</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-@keyframes flicker {
-  0% {opacity:1}
-  50% {opacity:.96}
-  100% {opacity:1}
+:root {
+  --green:#00ff9c;
+  --red:#ff3333;
 }
+
+* { box-sizing:border-box; }
 
 body {
-  background: radial-gradient(circle at center, #020202, #000);
-  color: #00ff9c;
-  font-family: "Courier New", monospace;
-  height: 100vh;
-  margin: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  animation: flicker 0.15s infinite;
+  margin:0;
+  background:black;
+  color:var(--green);
+  font-family:monospace;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
 }
 
+/* TERMINAL */
 #terminal {
-  width: 460px;
-  padding: 25px;
-  border: 2px solid #00ff9c;
-  box-shadow:
-    0 0 25px #00ff9c55,
-    inset 0 0 20px #00ff9c22;
+  width:100%;
+  max-width:480px;
+  border:2px solid var(--green);
+  padding:20px;
+  box-shadow:0 0 30px #00ff9c55;
 }
 
+/* HEADERS */
 h1 {
-  font-size: 16px;
-  text-align: center;
-  margin-bottom: 20px;
-  letter-spacing: 2px;
+  text-align:center;
+  font-size:15px;
+  letter-spacing:3px;
+  margin-bottom:20px;
 }
 
-.line {
-  opacity: .8;
-  margin-bottom: 6px;
+/* LOGIN INFO */
+.status {
+  font-size:12px;
+  opacity:.8;
+  margin-bottom:6px;
 }
 
+/* INPUTS */
 input, button {
-  width: 100%;
-  background: black;
-  border: 1px solid #00ff9c;
-  color: #00ff9c;
-  padding: 12px;
-  margin-top: 10px;
-  font-family: inherit;
+  width:100%;
+  background:black;
+  border:1px solid var(--green);
+  color:var(--green);
+  padding:12px;
+  margin-top:10px;
+  font-family:inherit;
 }
 
 input:focus {
-  outline: none;
-  box-shadow: 0 0 10px #00ff9c;
+  outline:none;
+  box-shadow:0 0 10px var(--green);
 }
 
 button {
-  cursor: pointer;
-  letter-spacing: 2px;
+  cursor:pointer;
+  letter-spacing:2px;
 }
 
 button:hover {
-  background: #00ff9c;
-  color: black;
+  background:var(--green);
+  color:black;
 }
 
+/* ERROR */
 #error {
-  color: #ff3333;
-  margin-top: 10px;
-  text-align: center;
-  font-weight: bold;
+  color:var(--red);
+  text-align:center;
+  margin-top:10px;
+  font-weight:bold;
 }
 
-#chat {
-  display: none;
-}
+/* CHAT */
+#chat { display:none; }
 
 #messages {
-  height: 260px;
-  overflow-y: auto;
-  border: 1px solid #00ff9c;
-  padding: 10px;
-  margin-bottom: 10px;
-  background: #000;
+  height:240px;
+  overflow-y:auto;
+  border:1px solid var(--green);
+  padding:10px;
+  margin-bottom:10px;
+  background:black;
 }
 
 .msg {
-  margin-bottom: 6px;
+  margin-bottom:6px;
+  word-wrap:break-word;
 }
 
-.me {
-  color: #00ffaa;
-}
+.me { color:#00ffaa; }
+.sys { color:#ffaa00; }
 
-.sys {
-  color: #ffaa00;
-}
-
-.warn {
-  color: #ff3333;
+/* MOBILE */
+@media (max-width:480px) {
+  #terminal {
+    border:none;
+    box-shadow:none;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+  #messages { flex:1; }
 }
 </style>
 </head>
@@ -111,30 +119,35 @@ button:hover {
 <body>
 
 <div id="terminal">
-<div id="login">
-  <h1>⚠ BLACKSITE ACCESS TERMINAL ⚠</h1>
-  <div class="line">Establishing encrypted channel...</div>
-  <div class="line">Location masked ▓▓▓▓▓▓▓▓</div>
-  <div class="line">Intrusion countermeasures: ACTIVE</div>
 
-  <input id="pseudo" placeholder="IDENTITY TAG">
-  <input id="code" type="password" placeholder="AUTHORIZATION KEY">
-  <button onclick="login()">INITIATE ACCESS</button>
+<!-- LOGIN -->
+<div id="login">
+  <h1>FSOCIETY ACCESS NODE</h1>
+  <div class="status">[+] Routing traffic through proxy</div>
+  <div class="status">[+] Encryption layer active</div>
+  <div class="status">[!] Unauthorized access will be logged</div>
+
+  <input id="pseudo" placeholder="IDENTITY">
+  <input id="code" type="password" placeholder="ACCESS KEY">
+  <button id="loginBtn">INIT ACCESS</button>
   <div id="error"></div>
 </div>
 
+<!-- CHAT -->
 <div id="chat">
-  <h1>🟢 ACCESS GRANTED</h1>
+  <h1>SECURE CHANNEL</h1>
   <div id="messages"></div>
-  <input id="message" placeholder="> transmit message">
-  <button onclick="sendMessage()">TRANSMIT</button>
+  <input id="message" placeholder="> type message">
+  <button id="sendBtn">SEND</button>
 </div>
+
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
 
 <script>
+/* FIREBASE INIT */
 firebase.initializeApp({
   apiKey: "AIzaSyCpo7up--nfVG4zj_Zeu4kB7pr34ad4ceM",
   authDomain: "lycee-europe-private.firebaseapp.com",
@@ -147,84 +160,82 @@ firebase.initializeApp({
 const db = firebase.firestore();
 const messagesRef = db.collection("messages_prives");
 
-let ACCESS_HASH = null;
+/* DOM */
+const loginBox = document.getElementById("login");
+const chatBox = document.getElementById("chat");
+const pseudoInput = document.getElementById("pseudo");
+const codeInput = document.getElementById("code");
+const errorBox = document.getElementById("error");
+const messagesBox = document.getElementById("messages");
+const messageInput = document.getElementById("message");
+
+let ACCESS_CODE = null;
 let currentPseudo = null;
 
-// SHA-256
-async function sha256(text) {
-  const data = new TextEncoder().encode(text);
-  const hash = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, "0")).join("");
-}
-
-async function loadHash() {
+/* LOAD ACCESS CODE */
+async function loadCode() {
   const doc = await db.collection("config").doc("access").get();
-  if (doc.exists) ACCESS_HASH = doc.data().hash;
+  if (doc.exists) ACCESS_CODE = doc.data().code;
 }
 
+/* LOGIN */
 async function login() {
-  const pseudo = document.getElementById("pseudo").value.trim();
-  const code = document.getElementById("code").value.trim();
-  const error = document.getElementById("error");
+  const pseudo = pseudoInput.value.trim();
+  const code = codeInput.value.trim();
 
-  if (!ACCESS_HASH) await loadHash();
+  if (!ACCESS_CODE) await loadCode();
 
   if (!pseudo || !code) {
-    error.textContent = "AUTHENTICATION FAILURE";
+    errorBox.textContent = "AUTH FAILED";
     return;
   }
 
-  const hash = await sha256(code);
-  if (hash !== ACCESS_HASH) {
-    error.textContent = "INTRUSION DETECTED";
+  if (code !== ACCESS_CODE) {
+    errorBox.textContent = "ACCESS DENIED";
     return;
   }
 
   currentPseudo = pseudo;
-  document.getElementById("login").style.display = "none";
-  document.getElementById("chat").style.display = "block";
-
-  systemMessage("Secure channel established.");
+  loginBox.style.display="none";
+  chatBox.style.display="block";
+  systemMessage("Secure channel established");
   listenMessages();
 }
 
+/* SYSTEM MESSAGE */
 function systemMessage(text) {
-  const box = document.getElementById("messages");
-  box.innerHTML += `<div class="msg sys">[SYSTEM] ${text}</div>`;
+  messagesBox.innerHTML += `<div class="msg sys">[SYSTEM] ${text}</div>`;
 }
 
+/* LISTEN CHAT */
 function listenMessages() {
-  messagesRef.orderBy("timestamp").onSnapshot(snapshot => {
-    const box = document.getElementById("messages");
-    box.innerHTML = "";
-    snapshot.forEach(doc => {
-      const m = doc.data();
-      const cls = m.pseudo === currentPseudo ? "me" : "";
-      box.innerHTML += `<div class="msg ${cls}">[${m.pseudo}] ${m.message}</div>`;
+  messagesRef.orderBy("timestamp").onSnapshot(snap=>{
+    messagesBox.innerHTML="";
+    snap.forEach(d=>{
+      const m=d.data();
+      const cls = m.pseudo===currentPseudo?"me":"";
+      messagesBox.innerHTML+=`<div class="msg ${cls}">[${m.pseudo}] ${m.message}</div>`;
     });
-    box.scrollTop = box.scrollHeight;
+    messagesBox.scrollTop=messagesBox.scrollHeight;
   });
 }
 
+/* SEND */
 async function sendMessage() {
-  const input = document.getElementById("message");
-  if (!input.value.trim()) return;
-
+  if (!messageInput.value.trim()) return;
   await messagesRef.add({
     pseudo: currentPseudo,
-    message: input.value,
+    message: messageInput.value,
     timestamp: firebase.firestore.FieldValue.serverTimestamp()
   });
-
-  input.value = "";
+  messageInput.value="";
 }
 
-// Basic anti-inspect deterrent
-document.addEventListener("keydown", e => {
-  if (e.key === "F12" || (e.ctrlKey && e.shiftKey && e.key === "I")) {
-    e.preventDefault();
-    document.body.innerHTML = "<h1 style='color:red;text-align:center'>TERMINAL LOCKED</h1>";
-  }
+/* EVENTS */
+document.getElementById("loginBtn").onclick = login;
+document.getElementById("sendBtn").onclick = sendMessage;
+messageInput.addEventListener("keydown",e=>{
+  if(e.key==="Enter") sendMessage();
 });
 </script>
 
