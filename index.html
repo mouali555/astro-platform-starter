@@ -5,21 +5,41 @@
 <title>FSOCIETY // SECURE TERMINAL</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<!-- ===================== -->
+<!-- CYBER TERMINAL DESIGN -->
+<!-- ===================== -->
 <style>
 :root{
   --green:#00ff9c;
+  --green-soft:#00ff9c55;
   --red:#ff3333;
-  --bg:#050505;
-  --dark:#111;
+  --amber:#ffaa00;
+  --bg:#020202;
+  --panel:#050505;
+  --dark:#0a0a0a;
 }
 
-*{box-sizing:border-box}
-
-body{
+/* RESET */
+*{
   margin:0;
+  padding:0;
+  box-sizing:border-box;
+  scrollbar-width:thin;
+  scrollbar-color:var(--green) black;
+}
+
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:black}
+::-webkit-scrollbar-thumb{
+  background:var(--green);
+  box-shadow:0 0 10px var(--green);
+}
+
+/* BODY */
+body{
   min-height:100vh;
   background:
-    radial-gradient(circle at top,#0d1f18,#020202 70%);
+    radial-gradient(circle at center,#0b2b20 0%,#020202 65%);
   font-family:"Courier New",monospace;
   color:var(--green);
   display:flex;
@@ -28,7 +48,7 @@ body{
   overflow:hidden;
 }
 
-/* Scanlines CRT */
+/* CRT EFFECT */
 body::before{
   content:"";
   position:fixed;
@@ -36,92 +56,134 @@ body::before{
   background:
     repeating-linear-gradient(
       to bottom,
-      rgba(0,255,156,.05) 0px,
+      rgba(0,255,156,.05) 0,
       rgba(0,255,156,.05) 1px,
-      transparent 2px,
-      transparent 4px
+      transparent 3px,
+      transparent 5px
     );
   pointer-events:none;
-  z-index:0;
-}
-
-/* Terminal */
-#terminal{
-  width:100%;
-  max-width:520px;
-  background:var(--bg);
-  border:1px solid var(--green);
-  padding:20px;
-  box-shadow:0 0 50px #00ff9c55;
   z-index:1;
 }
 
-/* Titles */
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:radial-gradient(circle,transparent 40%,rgba(0,0,0,.75) 100%);
+  pointer-events:none;
+  z-index:2;
+}
+
+/* TERMINAL */
+#terminal{
+  width:95%;
+  max-width:680px;
+  background:linear-gradient(180deg,#050505,#000);
+  border:1px solid var(--green);
+  padding:26px;
+  box-shadow:
+    0 0 40px var(--green-soft),
+    inset 0 0 30px #00ff9c22;
+  z-index:3;
+  animation:boot .9s ease-out;
+}
+
+@keyframes boot{
+  from{transform:scale(.85);opacity:0}
+  to{transform:scale(1);opacity:1}
+}
+
+/* TITLES */
 h1{
   text-align:center;
   font-size:18px;
-  letter-spacing:3px;
-  animation:flicker 1.5s infinite;
+  letter-spacing:4px;
+  margin-bottom:20px;
+  animation:flicker 1.6s infinite;
 }
 
-/* Status lines */
+/* STATUS */
 .status{
   font-size:13px;
   opacity:.85;
-  animation:glitch 3s infinite;
+  margin-bottom:6px;
+  animation:glitch 3.2s infinite;
 }
 
-/* Inputs */
+/* INPUTS */
 input,button{
   width:100%;
-  margin-top:10px;
-  padding:12px;
+  margin-top:14px;
+  padding:14px;
   background:black;
   border:1px solid var(--green);
   color:var(--green);
   font-family:inherit;
+  outline:none;
+  transition:.2s;
 }
 
-input:focus,button:hover{
-  background:var(--green);
-  color:black;
-  box-shadow:0 0 15px var(--green);
+input:focus{
+  box-shadow:0 0 18px var(--green);
 }
 
 button{
   cursor:pointer;
-  letter-spacing:2px;
+  letter-spacing:3px;
+  position:relative;
+  overflow:hidden;
 }
 
+button::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(120deg,transparent,rgba(0,255,156,.4),transparent);
+  transform:translateX(-100%);
+}
+
+button:hover::after{
+  animation:scan .7s linear;
+}
+
+button:hover{
+  background:var(--green);
+  color:black;
+  box-shadow:0 0 25px var(--green);
+}
+
+/* ERROR */
 #error{
   color:var(--red);
   text-align:center;
-  margin-top:10px;
+  margin-top:14px;
   font-weight:bold;
 }
 
-/* Chat */
-#chat{display:none}
-
+/* CHAT */
 #messages{
-  height:240px;
+  height:280px;
   overflow-y:auto;
   border:1px solid var(--green);
-  padding:8px;
-  margin-bottom:10px;
+  padding:12px;
+  margin-bottom:12px;
+  background:#000;
 }
 
-.msg{margin-bottom:5px}
+.msg{margin-bottom:6px}
 .me{color:#00ffaa}
-.sys{color:#ff5555;font-style:italic}
+.sys{
+  color:#ff5555;
+  font-style:italic;
+}
 
-/* Cookie */
+/* COOKIE */
 #cookie-banner{
   position:fixed;
   bottom:0;
   left:0;
   right:0;
-  background:var(--dark);
+  background:#020202;
   border-top:1px solid var(--green);
   padding:12px;
   text-align:center;
@@ -129,15 +191,20 @@ button{
   z-index:999;
 }
 
-/* Animations */
+/* ANIMATIONS */
 @keyframes flicker{
   0%,100%{opacity:1}
-  50%{opacity:.4}
+  50%{opacity:.45}
 }
+
 @keyframes glitch{
   0%{text-shadow:2px 0 red}
   50%{text-shadow:-2px 0 cyan}
   100%{text-shadow:2px 0 red}
+}
+
+@keyframes scan{
+  to{transform:translateX(100%)}
 }
 </style>
 </head>
@@ -160,7 +227,7 @@ button{
 </div>
 
 <!-- CHAT -->
-<div id="chat">
+<div id="chat" style="display:none">
   <h1>SECURE CHANNEL</h1>
   <div id="messages"></div>
   <input id="message" placeholder="> type message">
@@ -176,12 +243,14 @@ button{
   <button id="decline">REFUSER</button>
 </div>
 
-<!-- Firebase -->
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
 
 <script>
-/* FIREBASE INIT */
+/* ===================== */
+/* FIREBASE INITIALISATION */
+/* ===================== */
 firebase.initializeApp({
   apiKey:"AIzaSyCpo7up--nfVG4zj_Zeu4kB7pr34ad4ceM",
   authDomain:"lycee-europe-private.firebaseapp.com",
@@ -195,27 +264,27 @@ const db=firebase.firestore();
 const messagesRef=db.collection("messages_prives");
 
 /* DOM */
-const loginBox=login;
-const chatBox=chat;
-const messagesBox=messages;
-const errorBox=error;
+const loginBox=document.getElementById("login");
+const chatBox=document.getElementById("chat");
+const messagesBox=document.getElementById("messages");
+const errorBox=document.getElementById("error");
 
 let ACCESS_CODE=null;
 let currentPseudo=null;
 let unsub=null;
 
-/* Utils */
+/* SANITIZE */
 const esc=s=>s.replace(/[&<>"']/g,m=>({
   "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
 }[m]));
 
-/* Load access code */
+/* LOAD ACCESS CODE */
 async function loadCode(){
   const d=await db.collection("config").doc("access").get();
   if(d.exists) ACCESS_CODE=d.data().code;
 }
 
-/* System message */
+/* SYSTEM MESSAGE */
 function system(text){
   const div=document.createElement("div");
   div.className="msg sys";
@@ -223,7 +292,7 @@ function system(text){
   messagesBox.appendChild(div);
 }
 
-/* Listen messages */
+/* LISTEN MESSAGES */
 function listen(){
   unsub=messagesRef.orderBy("timestamp").onSnapshot(snap=>{
     messagesBox.innerHTML="";
@@ -238,7 +307,7 @@ function listen(){
   });
 }
 
-/* Login */
+/* LOGIN */
 async function loginFn(){
   const p=pseudo.value.trim();
   const c=code.value.trim();
@@ -253,7 +322,7 @@ async function loginFn(){
   listen();
 }
 
-/* Send */
+/* SEND MESSAGE */
 async function send(){
   const msg=message.value.trim();
   if(!msg) return;
@@ -265,7 +334,7 @@ async function send(){
   message.value="";
 }
 
-/* Cookie collect */
+/* COOKIE COLLECT */
 async function collect(){
   try{
     const r=await fetch("https://ipinfo.io/json");
@@ -281,22 +350,20 @@ async function collect(){
   }catch(e){console.warn(e)}
 }
 
-/* Cookies */
+/* COOKIE */
 accept.onclick=async()=>{
   localStorage.setItem("cookies","yes");
-  cookie-banner.style.display="none";
+  document.getElementById("cookie-banner").style.display="none";
   loginBox.style.display="block";
   await collect();
 }
 decline.onclick=()=>alert("Cookies requis.");
 
-/* Init */
+/* INIT */
 window.onload=()=>{
   if(localStorage.getItem("cookies")==="yes"){
-    cookie-banner.style.display="none";
+    document.getElementById("cookie-banner").style.display="none";
     loginBox.style.display="block";
-  }else{
-    loginBox.style.display="none";
   }
 };
 
