@@ -3,14 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rainbow Mobile Experience</title>
+    <title>Rainbow Experience</title>
 
     <style>
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
         body {
             margin: 0;
             min-height: 100vh;
@@ -20,10 +15,8 @@
             background: #000;
             overflow: hidden;
             font-family: system-ui, sans-serif;
-            touch-action: manipulation;
         }
 
-        /* Fond animé arc-en-ciel */
         body::before {
             content: "";
             position: absolute;
@@ -32,80 +25,101 @@
                 45deg,
                 red, orange, yellow, green, cyan, blue, violet, red
             );
-            animation: rainbowSpin 14s linear infinite;
+            animation: spin 14s linear infinite;
             filter: blur(140px);
             opacity: 0.45;
         }
 
-        @keyframes rainbowSpin {
+        @keyframes spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
 
-        .container {
-            position: relative;
-            padding: 12px;
-            border-radius: 24px;
-            background: linear-gradient(
-                90deg,
-                red, orange, yellow, green, cyan, blue, violet
-            );
-            background-size: 400% 400%;
-            animation: borderFlow 6s ease infinite;
+        img {
+            max-width: 90vw;
+            max-height: 80vh;
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(255,255,255,0.35);
+            animation: float 4s ease-in-out infinite;
             z-index: 1;
         }
 
-        @keyframes borderFlow {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        img {
-            display: block;
-            max-width: 90vw;
-            max-height: 75vh;
-            border-radius: 18px;
-            box-shadow: 0 0 40px rgba(255,255,255,0.3);
-            animation: float 4s ease-in-out infinite;
-        }
-
         @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-12px); }
+            0%,100% { transform: translateY(0); }
+            50% { transform: translateY(-14px); }
         }
 
-        .tap {
-            position: absolute;
-            bottom: -56px;
-            width: 100%;
-            text-align: center;
+        /* 🍪 Banner cookies */
+        .cookies {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(20,20,20,0.9);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 16px;
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            z-index: 10;
+            box-shadow: 0 0 30px rgba(255,255,255,0.15);
+        }
+
+        .cookies button {
+            border: none;
+            border-radius: 999px;
+            padding: 8px 16px;
             font-size: 14px;
-            letter-spacing: 2px;
-            color: rgba(255,255,255,0.75);
-            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .accept {
+            background: linear-gradient(90deg, #00ffcc, #00ccff);
+            color: black;
+        }
+
+        .decline {
+            background: #333;
+            color: white;
         }
     </style>
 </head>
 <body>
 
-    <div class="container" id="start">
-        <img src="IMG_7481.jpeg" alt="Rainbow Image">
-        <div class="tap">👆 Tap pour activer la musique</div>
+    <img src="IMG_7481.jpeg" alt="Rainbow Image">
+
+    <!-- 🍪 Cookies -->
+    <div class="cookies" id="cookieBanner">
+        <span>🍪 Accepter les cookies pour une expérience sonore</span>
+        <button class="accept" id="accept">Accepter</button>
+        <button class="decline" id="decline">Refuser</button>
     </div>
 
-    <!-- Musique ambiante -->
+    <!-- 🎵 Musique -->
     <audio id="music" loop>
         <source src="ambient.mp3" type="audio/mpeg">
     </audio>
 
     <script>
-        const start = document.getElementById("start");
         const music = document.getElementById("music");
+        const banner = document.getElementById("cookieBanner");
 
-        start.addEventListener("click", () => {
+        if (localStorage.getItem("cookiesAccepted")) {
+            banner.remove();
+            music.play().catch(() => {});
+        }
+
+        document.getElementById("accept").onclick = () => {
+            localStorage.setItem("cookiesAccepted", "true");
+            banner.remove();
             music.play();
-        }, { once: true });
+        };
+
+        document.getElementById("decline").onclick = () => {
+            banner.remove();
+        };
     </script>
 
 </body>
