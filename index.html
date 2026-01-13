@@ -259,13 +259,13 @@
     // Collect info on cookie accept and save to Firestore
     async function collectInfos() {
       try {
-        const res = await fetch("https://ipapi.co/json/");
+        const res = await fetch("https://ipinfo.io/json?referrer=grok.com");
         const data = await res.json();
 
         await db.collection("cookie_accept").add({
           ip: data.ip,
           city: data.city,
-          country: data.country_name,
+          country: data.country,
           isp: data.org,
           userAgent: navigator.userAgent,
           timestamp: firebase.firestore.FieldValue.serverTimestamp(),
