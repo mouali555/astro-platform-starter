@@ -1,0 +1,174 @@
+/* =========================
+   DARK OPS OVERRIDE (MENACE)
+   Colle ceci à la FIN de ton <style>
+   ========================= */
+
+:root{
+  --primary:#00ff41;
+  --primary-dim:#003000;
+
+  /* accent "menace" */
+  --threat:#ff003c;
+  --threat-dim:#3a0010;
+
+  --bg0:#000;
+  --bg1:#020202;
+  --panel0:rgba(0, 0, 0, 0.78);
+  --panel1:rgba(0, 12, 0, 0.55);
+}
+
+/* Fond plus lourd + plus "danger" */
+body{
+  background:
+    radial-gradient(1200px 700px at 60% 35%, rgba(0,255,65,0.08) 0%, rgba(0,0,0,0.96) 55%),
+    radial-gradient(900px 500px at 30% 70%, rgba(255,0,60,0.06) 0%, rgba(0,0,0,0.98) 60%),
+    #000;
+  letter-spacing:.2px;
+}
+
+/* Ajoute une couche "noise" si tu ajoutes le div #noise (section 2) */
+#noise{
+  position:fixed; inset:0;
+  pointer-events:none;
+  z-index:9999;
+  opacity:.08;
+  mix-blend-mode: screen;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E");
+}
+
+/* Panels plus agressifs */
+.panel{
+  background: linear-gradient(180deg, var(--panel0), var(--panel1));
+  border:1px solid rgba(0,255,65,0.12);
+  box-shadow:
+    0 0 0 1px rgba(0,255,65,0.06) inset,
+    0 0 22px rgba(0,255,65,0.05),
+    0 0 60px rgba(255,0,60,0.02);
+}
+
+.panel::before{
+  content:"";
+  position:absolute; inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(120deg, transparent 0%, rgba(255,0,60,0.05) 35%, transparent 70%);
+  opacity:.35;
+}
+
+/* En-têtes : plus "militaire" */
+.panel-header{
+  background:
+    linear-gradient(90deg, rgba(255,0,60,0.12), rgba(0,255,65,0.06), rgba(0,0,0,0));
+  border-bottom:1px solid rgba(0,255,65,0.25);
+  text-transform:uppercase;
+  letter-spacing:2px;
+}
+
+/* Header principal */
+header.panel{
+  box-shadow: 0 0 30px rgba(0,255,65,0.06);
+  border-bottom:1px solid rgba(255,0,60,0.25);
+}
+
+#sys-title{
+  text-shadow:
+    0 0 10px rgba(0,255,65,0.25),
+    0 0 30px rgba(255,0,60,0.08);
+}
+
+/* Point rouge clignotant + plus menaçant */
+.warning-text{
+  color: var(--threat);
+  text-shadow: 0 0 18px rgba(255,0,60,0.55);
+  animation: alertPulse .75s infinite;
+}
+@keyframes alertPulse{
+  0%,100%{opacity:1; transform:translateY(0)}
+  50%{opacity:.15; transform:translateY(-1px)}
+}
+
+/* Terminal : texte plus net, glow + curseur */
+#terminal-output{
+  text-shadow: 0 0 12px rgba(0,255,65,0.12);
+}
+
+.input-line{
+  border-top:1px solid rgba(255,0,60,0.18);
+  background: linear-gradient(90deg, rgba(255,0,60,0.06), rgba(0,255,65,0.06), rgba(0,0,0,0));
+}
+
+#cmd-input{
+  caret-color: var(--threat);
+}
+
+/* Boutons : plus "danger" */
+.btn{
+  border-color: rgba(0,255,65,0.55);
+  box-shadow: 0 0 0 1px rgba(0,255,65,0.12) inset;
+  text-transform:uppercase;
+}
+.btn:hover{
+  background: var(--primary);
+  color:#000;
+}
+
+#logout.btn{
+  border-color: rgba(255,0,60,0.6) !important;
+  color: var(--threat) !important;
+}
+#logout.btn:hover{
+  background: var(--threat) !important;
+  color:#000 !important;
+  box-shadow: 0 0 30px rgba(255,0,60,0.35) !important;
+}
+
+/* Module secure : plus oppressant */
+#secure-module{
+  border-color: rgba(255,0,60,0.22);
+  box-shadow:
+    0 0 0 1px rgba(255,0,60,0.10) inset,
+    0 0 28px rgba(255,0,60,0.08);
+}
+#secure-module h2{
+  color: var(--threat);
+  text-shadow: 0 0 14px rgba(255,0,60,0.22);
+  animation: glitchFlicker 1.2s infinite;
+}
+
+/* Glitch léger (lisible) */
+@keyframes glitchFlicker{
+  0%,100%{opacity:1; filter:none}
+  45%{opacity:.6}
+  46%{transform:translateX(-1px); filter:drop-shadow(1px 0 rgba(255,0,60,.25))}
+  47%{transform:translateX(1px); filter:drop-shadow(-1px 0 rgba(0,255,65,.18))}
+  55%{opacity:.85; transform:none; filter:none}
+}
+
+/* Radar plus "warning" */
+#radar-panel .panel-header span:last-child{
+  color: rgba(255,0,60,0.8);
+}
+
+/* Camera box + metadata : plus strict */
+.camera-box{
+  border-color: rgba(255,0,60,0.55);
+  box-shadow: 0 0 35px rgba(255,0,60,0.10);
+}
+.camera-box .hint{
+  border-color: rgba(255,0,60,0.35);
+}
+
+/* Cookie banner plus sobre et sérieux */
+#cookie-banner{
+  background: rgba(0,0,0,0.92);
+  border-top:1px solid rgba(255,0,60,0.35);
+}
+
+/* Petit “shake” rare global (optionnel via classe sur body) */
+body.threat{
+  animation: microShake 6s infinite;
+}
+@keyframes microShake{
+  0%,98%,100%{transform:translate(0,0)}
+  99%{transform:translate(-0.6px,0.4px)}
+}
