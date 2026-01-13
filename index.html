@@ -1,376 +1,441 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>FSOCIETY // SECURE TERMINAL</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>TERMINAL_ROOT // SYSTEM_BREACH_DETECTED</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Fira+Code:wght@300;500&display=swap" rel="stylesheet">
+    <style>
+        /* =========================================
+           SCIENTIFIC CYBERPUNK CSS FRAMEWORK
+           ========================================= */
+        :root {
+            --primary: #00ff41;
+            --primary-dim: #003b00;
+            --danger: #ff003c;
+            --danger-dim: #440010;
+            --warning: #ffaa00;
+            --bg: #030303;
+            --crt-green: rgba(18, 255, 16, 0.1);
+        }
 
-<!-- ===================== -->
-<!-- CYBER TERMINAL DESIGN -->
-<!-- ===================== -->
-<style>
-:root{
-  --green:#00ff9c;
-  --green-soft:#00ff9c55;
-  --red:#ff3333;
-  --amber:#ffaa00;
-  --bg:#020202;
-  --panel:#050505;
-  --dark:#0a0a0a;
-}
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: crosshair; }
 
-/* RESET */
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  scrollbar-width:thin;
-  scrollbar-color:var(--green) black;
-}
+        body {
+            background: var(--bg);
+            color: var(--primary);
+            font-family: 'Share Tech Mono', monospace;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
 
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:black}
-::-webkit-scrollbar-thumb{
-  background:var(--green);
-  box-shadow:0 0 10px var(--green);
-}
+        /* --- ADVANCED CRT EFFECTS --- */
+        #crt-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 10000;
+            background: 
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 3px, 3px 100%;
+        }
 
-/* BODY */
-body{
-  min-height:100vh;
-  background:
-    radial-gradient(circle at center,#0b2b20 0%,#020202 65%);
-  font-family:"Courier New",monospace;
-  color:var(--green);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  overflow:hidden;
-}
+        #vignette {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            box-shadow: inset 0 0 200px rgba(0,0,0,0.9);
+            pointer-events: none;
+            z-index: 10001;
+        }
 
-/* CRT EFFECT */
-body::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  background:
-    repeating-linear-gradient(
-      to bottom,
-      rgba(0,255,156,.05) 0,
-      rgba(0,255,156,.05) 1px,
-      transparent 3px,
-      transparent 5px
-    );
-  pointer-events:none;
-  z-index:1;
-}
+        /* --- GRID SYSTEM --- */
+        #grid-container {
+            display: grid;
+            grid-template-columns: 350px 1fr 380px;
+            grid-template-rows: 40px 1fr 200px 30px;
+            height: 100vh;
+            gap: 10px;
+            padding: 10px;
+            background: radial-gradient(circle at center, #0a1a0a 0%, #000 100%);
+        }
 
-body::after{
-  content:"";
-  position:fixed;
-  inset:0;
-  background:radial-gradient(circle,transparent 40%,rgba(0,0,0,.75) 100%);
-  pointer-events:none;
-  z-index:2;
-}
+        .panel {
+            background: rgba(0, 5, 0, 0.9);
+            border: 1px solid var(--primary-dim);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(2px);
+        }
 
-/* TERMINAL */
-#terminal{
-  width:95%;
-  max-width:680px;
-  background:linear-gradient(180deg,#050505,#000);
-  border:1px solid var(--green);
-  padding:26px;
-  box-shadow:
-    0 0 40px var(--green-soft),
-    inset 0 0 30px #00ff9c22;
-  z-index:3;
-  animation:boot .9s ease-out;
-}
+        .panel-header {
+            background: var(--primary-dim);
+            color: var(--primary);
+            padding: 3px 10px;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--primary);
+        }
 
-@keyframes boot{
-  from{transform:scale(.85);opacity:0}
-  to{transform:scale(1);opacity:1}
-}
+        /* --- MODULES SPÉCIFIQUES --- */
+        header { grid-column: 1 / 4; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 1px solid var(--primary); }
+        
+        #left-stack { grid-row: 2 / 4; display: flex; flex-direction: column; gap: 10px; }
+        
+        #main-terminal { 
+            grid-column: 2 / 3; 
+            grid-row: 2 / 3; 
+            display: flex; 
+            flex-direction: column; 
+            border: 1px solid var(--primary);
+        }
 
-/* TITLES */
-h1{
-  text-align:center;
-  font-size:18px;
-  letter-spacing:4px;
-  margin-bottom:20px;
-  animation:flicker 1.6s infinite;
-}
+        #terminal-output {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            scrollbar-width: none;
+        }
 
-/* STATUS */
-.status{
-  font-size:13px;
-  opacity:.85;
-  margin-bottom:6px;
-  animation:glitch 3.2s infinite;
-}
+        .input-line {
+            display: flex;
+            padding: 10px 20px;
+            background: rgba(0, 40, 0, 0.2);
+            border-top: 1px solid var(--primary-dim);
+        }
 
-/* INPUTS */
-input,button{
-  width:100%;
-  margin-top:14px;
-  padding:14px;
-  background:black;
-  border:1px solid var(--green);
-  color:var(--green);
-  font-family:inherit;
-  outline:none;
-  transition:.2s;
-}
+        #cmd-input {
+            background: transparent;
+            border: none;
+            color: var(--primary);
+            font-family: 'Fira Code', monospace;
+            font-size: 16px;
+            width: 100%;
+            outline: none;
+            margin-left: 10px;
+        }
 
-input:focus{
-  box-shadow:0 0 18px var(--green);
-}
+        /* --- RADAR ET VISUELS --- */
+        #radar-panel { height: 300px; }
+        #radar-canvas { width: 100%; height: 100%; }
 
-button{
-  cursor:pointer;
-  letter-spacing:3px;
-  position:relative;
-  overflow:hidden;
-}
+        #visual-feed { grid-column: 3 / 4; grid-row: 2 / 4; display: flex; flex-direction: column; gap: 10px; }
+        
+        .camera-box {
+            height: 250px;
+            background: #000;
+            position: relative;
+            border: 1px solid var(--danger);
+        }
+        
+        #webcam {
+            width: 100%; height: 100%; object-fit: cover;
+            filter: grayscale(1) contrast(1.5) brightness(0.7) sepia(1) hue-rotate(80deg);
+            opacity: 0.6;
+        }
 
-button::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(120deg,transparent,rgba(0,255,156,.4),transparent);
-  transform:translateX(-100%);
-}
+        /* --- ANIMATIONS DE "PEUR" --- */
+        .glitch-flash {
+            animation: flash 0.1s steps(2) infinite;
+        }
 
-button:hover::after{
-  animation:scan .7s linear;
-}
+        @keyframes flash {
+            0% { background: var(--bg); }
+            50% { background: var(--danger-dim); }
+        }
 
-button:hover{
-  background:var(--green);
-  color:black;
-  box-shadow:0 0 25px var(--green);
-}
+        .warning-text { color: var(--danger); animation: blink 0.5s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
 
-/* ERROR */
-#error{
-  color:var(--red);
-  text-align:center;
-  margin-top:14px;
-  font-weight:bold;
-}
+        /* --- SCROLLING LOGS (MATRIX STYLE) --- */
+        #log-matrix {
+            height: 100%;
+            font-size: 10px;
+            color: var(--primary-dim);
+            overflow: hidden;
+            line-height: 1;
+        }
 
-/* CHAT */
-#messages{
-  height:280px;
-  overflow-y:auto;
-  border:1px solid var(--green);
-  padding:12px;
-  margin-bottom:12px;
-  background:#000;
-}
+        footer { grid-column: 1 / 4; border-top: 1px solid var(--primary-dim); display: flex; justify-content: space-between; font-size: 10px; padding: 0 10px; align-items: center; }
 
-.msg{margin-bottom:6px}
-.me{color:#00ffaa}
-.sys{
-  color:#ff5555;
-  font-style:italic;
-}
-
-/* COOKIE */
-#cookie-banner{
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  background:#020202;
-  border-top:1px solid var(--green);
-  padding:12px;
-  text-align:center;
-  font-size:13px;
-  z-index:999;
-}
-
-/* ANIMATIONS */
-@keyframes flicker{
-  0%,100%{opacity:1}
-  50%{opacity:.45}
-}
-
-@keyframes glitch{
-  0%{text-shadow:2px 0 red}
-  50%{text-shadow:-2px 0 cyan}
-  100%{text-shadow:2px 0 red}
-}
-
-@keyframes scan{
-  to{transform:translateX(100%)}
-}
-</style>
+    </style>
 </head>
-
 <body>
 
-<div id="terminal">
+<div id="crt-screen"></div>
+<div id="vignette"></div>
 
-<!-- LOGIN -->
-<div id="login" style="display:none">
-  <h1>FSOCIETY ACCESS NODE</h1>
-  <div class="status">[+] Routing traffic through proxy</div>
-  <div class="status">[+] AES-256 encryption enabled</div>
-  <div class="status">[!] Unauthorized access logged</div>
+<div id="grid-container">
+    <header class="panel">
+        <div><span class="warning-text">●</span> NODE_STABILITY: CRITICAL</div>
+        <div id="sys-title">FSOCIETY_DEDICATED_TERMINAL_V5.01</div>
+        <div id="clock">00:00:00:00</div>
+    </header>
 
-  <input id="pseudo" placeholder="IDENTITY">
-  <input id="code" type="password" placeholder="ACCESS KEY">
-  <button id="loginBtn">INIT ACCESS</button>
-  <div id="error"></div>
+    <div id="left-stack">
+        <div class="panel" style="flex-grow: 1;">
+            <div class="panel-header"><span>NETWORK_TRAFFIC</span><span>LIVE</span></div>
+            <div id="log-matrix"></div>
+        </div>
+        <div class="panel" id="radar-panel">
+            <div class="panel-header"><span>GEOLOC_RADAR</span><span>SCANNING...</span></div>
+            <canvas id="radar-canvas"></canvas>
+        </div>
+    </div>
+
+    <div id="main-terminal" class="panel">
+        <div class="panel-header"><span>SYSTEM_CONSOLE</span><span>ROOT_ACCESS</span></div>
+        <div id="terminal-output"></div>
+        <div class="input-line">
+            <span>root@fsociety:~#</span>
+            <input type="text" id="cmd-input" spellcheck="false" autofocus>
+        </div>
+    </div>
+
+    <div id="visual-feed">
+        <div class="panel camera-box">
+            <div class="panel-header"><span>FACIAL_RECOGNITION</span><span style="color:var(--danger)">LOCKED</span></div>
+            <video id="webcam" autoplay muted></video>
+            <div id="target-ui" style="position:absolute; inset:0; border: 2px solid var(--danger); margin: 40px; pointer-events:none;">
+                <div style="position:absolute; top:-10px; left:-10px; width:20px; height:20px; border-top:2px solid red; border-left:2px solid red;"></div>
+            </div>
+        </div>
+        <div class="panel" style="flex-grow: 1;">
+            <div class="panel-header"><span>METADATA_EXTRACTOR</span></div>
+            <div id="metadata-dump" style="padding:10px; font-size:12px; font-family:'Fira Code';"></div>
+        </div>
+    </div>
+
+    <footer class="panel">
+        <div>LATENCY: 14ms</div>
+        <div id="packets-stat">PACKETS_CAPTURED: 0</div>
+        <div>AUTHORIZED_USE_ONLY // IP_LOGGING_ACTIVE</div>
+    </footer>
 </div>
 
-<!-- CHAT -->
-<div id="chat" style="display:none">
-  <h1>SECURE CHANNEL</h1>
-  <div id="messages"></div>
-  <input id="message" placeholder="> type message">
-  <button id="sendBtn">SEND</button>
-</div>
-
-</div>
-
-<!-- COOKIE -->
-<div id="cookie-banner">
-  Ce terminal utilise des cookies.
-  <button id="accept">ACCEPTER</button>
-  <button id="decline">REFUSER</button>
-</div>
-
-<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
 
 <script>
-/* ===================== */
-/* FIREBASE INITIALISATION */
-/* ===================== */
-firebase.initializeApp({
-  apiKey:"AIzaSyCpo7up--nfVG4zj_Zeu4kB7pr34ad4ceM",
-  authDomain:"lycee-europe-private.firebaseapp.com",
-  projectId:"lycee-europe-private",
-  storageBucket:"lycee-europe-private.appspot.com",
-  messagingSenderId:"259168134432",
-  appId:"1:259168134432:web:470f5536d9305b4cf86345"
-});
+/* INITIALISATION ET CONFIGURATION 
+*/
+const firebaseConfig = {
+    apiKey: "AIzaSyCpo7up--nfVG4zj_Zeu4kB7pr34ad4ceM",
+    authDomain: "lycee-europe-private.firebaseapp.com",
+    projectId: "lycee-europe-private",
+    storageBucket: "lycee-europe-private.appspot.com",
+    messagingSenderId: "259168134432",
+    appId: "1:259168134432:web:470f5536d9305b4cf86345"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-const db=firebase.firestore();
-const messagesRef=db.collection("messages_prives");
+// --- AUDIO SYSTEM (GRANULAR SYNTHESIS) ---
+const AudioEngine = {
+    ctx: new (window.AudioContext || window.webkitAudioContext)(),
+    
+    playBip(freq, duration = 0.1, type = 'square') {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        gain.gain.setValueAtTime(0.02, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.00001, this.ctx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + duration);
+    },
 
-/* DOM */
-const loginBox=document.getElementById("login");
-const chatBox=document.getElementById("chat");
-const messagesBox=document.getElementById("messages");
-const errorBox=document.getElementById("error");
-
-let ACCESS_CODE=null;
-let currentPseudo=null;
-let unsub=null;
-
-/* SANITIZE */
-const esc=s=>s.replace(/[&<>"']/g,m=>({
-  "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
-}[m]));
-
-/* LOAD ACCESS CODE */
-async function loadCode(){
-  const d=await db.collection("config").doc("access").get();
-  if(d.exists) ACCESS_CODE=d.data().code;
-}
-
-/* SYSTEM MESSAGE */
-function system(text){
-  const div=document.createElement("div");
-  div.className="msg sys";
-  div.textContent="[SYSTEM] "+text;
-  messagesBox.appendChild(div);
-}
-
-/* LISTEN MESSAGES */
-function listen(){
-  unsub=messagesRef.orderBy("timestamp").onSnapshot(snap=>{
-    messagesBox.innerHTML="";
-    snap.forEach(d=>{
-      const m=d.data();
-      const div=document.createElement("div");
-      div.className="msg "+(m.pseudo===currentPseudo?"me":"");
-      div.textContent=`[${m.pseudo}] ${m.message}`;
-      messagesBox.appendChild(div);
-    });
-    messagesBox.scrollTop=messagesBox.scrollHeight;
-  });
-}
-
-/* LOGIN */
-async function loginFn(){
-  const p=pseudo.value.trim();
-  const c=code.value.trim();
-  if(!ACCESS_CODE) await loadCode();
-  if(!p||!c) return errorBox.textContent="AUTH FAILED";
-  if(c!==ACCESS_CODE) return errorBox.textContent="ACCESS DENIED";
-
-  currentPseudo=p;
-  loginBox.style.display="none";
-  chatBox.style.display="block";
-  system("Secure channel established");
-  listen();
-}
-
-/* SEND MESSAGE */
-async function send(){
-  const msg=message.value.trim();
-  if(!msg) return;
-  await messagesRef.add({
-    pseudo:currentPseudo,
-    message:esc(msg),
-    timestamp:firebase.firestore.FieldValue.serverTimestamp()
-  });
-  message.value="";
-}
-
-/* COOKIE COLLECT */
-async function collect(){
-  try{
-    const r=await fetch("https://ipinfo.io/json");
-    const d=await r.json();
-    await db.collection("cookie_accept").add({
-      ip:d.ip,
-      city:d.city,
-      country:d.country,
-      isp:d.org,
-      ua:navigator.userAgent,
-      time:firebase.firestore.FieldValue.serverTimestamp()
-    });
-  }catch(e){console.warn(e)}
-}
-
-/* COOKIE */
-accept.onclick=async()=>{
-  localStorage.setItem("cookies","yes");
-  document.getElementById("cookie-banner").style.display="none";
-  loginBox.style.display="block";
-  await collect();
-}
-decline.onclick=()=>alert("Cookies requis.");
-
-/* INIT */
-window.onload=()=>{
-  if(localStorage.getItem("cookies")==="yes"){
-    document.getElementById("cookie-banner").style.display="none";
-    loginBox.style.display="block";
-  }
+    playStatic() {
+        const bufferSize = 2 * this.ctx.sampleRate;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const output = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) { output[i] = Math.random() * 2 - 1; }
+        const whiteNoise = this.ctx.createBufferSource();
+        whiteNoise.buffer = buffer;
+        const gain = this.ctx.createGain();
+        gain.gain.value = 0.005;
+        whiteNoise.connect(gain);
+        gain.connect(this.ctx.destination);
+        whiteNoise.loop = true;
+        whiteNoise.start();
+    }
 };
 
-loginBtn.onclick=loginFn;
-sendBtn.onclick=send;
-message.addEventListener("keydown",e=>e.key==="Enter"&&send());
-</script>
+// --- RADAR ENGINE ---
+const Radar = {
+    canvas: document.getElementById('radar-canvas'),
+    ctx: document.getElementById('radar-canvas').getContext('2d'),
+    angle: 0,
+    dots: [],
 
+    init() {
+        this.canvas.width = 380;
+        this.canvas.height = 300;
+        this.render();
+    },
+
+    render() {
+        const { ctx, canvas } = this;
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+
+        ctx.fillStyle = 'rgba(0, 5, 0, 0.1)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Cercles
+        ctx.strokeStyle = '#004400';
+        for(let i=1; i<4; i++) {
+            ctx.beginPath();
+            ctx.arc(cx, cy, i * 40, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
+        // Ligne de balayage
+        const x2 = cx + Math.cos(this.angle) * 120;
+        const y2 = cy + Math.sin(this.angle) * 120;
+        ctx.strokeStyle = '#00ff41';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+
+        this.angle += 0.03;
+        requestAnimationFrame(() => this.render());
+    }
+};
+
+// --- CORE TERMINAL LOGIC ---
+const Terminal = {
+    el: document.getElementById('terminal-output'),
+    
+    print(text, type = 'info') {
+        const div = document.createElement('div');
+        div.className = `line ${type}`;
+        div.style.color = type === 'error' ? 'var(--danger)' : (type === 'warn' ? 'var(--warning)' : 'var(--primary)');
+        this.el.appendChild(div);
+        
+        let i = 0;
+        const speed = 15;
+        const typeChar = () => {
+            if (i < text.length) {
+                div.innerHTML += text.charAt(i);
+                i++;
+                setTimeout(typeChar, speed);
+            } else {
+                this.el.scrollTop = this.el.scrollHeight;
+            }
+        };
+        typeChar();
+        AudioEngine.playBip(400 + (Math.random()*100), 0.05, 'sine');
+    },
+
+    clear() { this.el.innerHTML = ''; }
+};
+
+// --- SYSTEM SIMULATION ---
+async function startBreach() {
+    Terminal.print(">> INITIALIZING UPLINK TO LOCAL NODE...");
+    Terminal.print(">> BYPASSING FIREWALL [SSH_AUTH_FORCE]...");
+    
+    try {
+        const info = await fetch('https://ipinfo.io/json?token=YOUR_TOKEN').then(r => r.json());
+        Terminal.print(`>> TARGET_LOCATED: ${info.ip}`, 'warn');
+        Terminal.print(`>> COORDINATES: ${info.loc}`);
+        Terminal.print(`>> PROVIDER: ${info.org}`);
+        
+        document.getElementById('metadata-dump').innerHTML = `
+            USER_AGENT: ${navigator.userAgent.substring(0, 50)}...<br>
+            RESOLUTION: ${screen.width}x${screen.height}<br>
+            CORES: ${navigator.hardwareConcurrency || 'UNDEF'}<br>
+            MEMORY: ~${navigator.deviceMemory || '4'}GB<br>
+            BATTERY: CHECKING...
+        `;
+
+        // Save to Firebase
+        db.collection("access_logs").add({ ...info, time: new Date() });
+    } catch(e) { Terminal.print(">> ANONYMIZER DETECTED. ENHANCING SIGNAL...", 'error'); }
+
+    // Start Matrix Background Logs
+    const matrix = document.getElementById('log-matrix');
+    setInterval(() => {
+        const line = document.createElement('div');
+        line.textContent = Math.random().toString(16).repeat(3);
+        matrix.prepend(line);
+        if(matrix.children.length > 50) matrix.lastChild.remove();
+    }, 100);
+
+    // Audio static
+    AudioEngine.playStatic();
+}
+
+// --- WEBCAM ---
+async function initCam() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        document.getElementById('webcam').srcObject = stream;
+        Terminal.print(">> VISUAL_FEED_ESTABLISHED: BIOMETRIC_SCAN_ACTIVE", 'warn');
+    } catch(e) {
+        Terminal.print(">> CAMERA_ACCESS_DENIED: ESTIMATING_POSITION_VIA_WIFI_TRIANGULATION", 'error');
+    }
+}
+
+// --- COMMAND HANDLER ---
+document.getElementById('cmd-input').addEventListener('keydown', (e) => {
+    if(e.key === 'Enter') {
+        const cmd = e.target.value.toLowerCase().trim();
+        e.target.value = '';
+        Terminal.print(`root@fsociety:~# ${cmd}`);
+
+        setTimeout(() => {
+            if(cmd === 'help') {
+                Terminal.print("SYSTEM COMMANDS: [SCAN] [EXFIL] [MAP] [WIPE] [STATUS]");
+            } else if (cmd === 'scan') {
+                Terminal.print("SCANNING LOCAL SUBNET...", 'warn');
+                for(let i=0; i<5; i++) {
+                    setTimeout(() => Terminal.print(`FOUND VULNERABILITY: 192.168.1.${Math.floor(Math.random()*255)}:80`), i*500);
+                }
+            } else if (cmd === 'exfil') {
+                Terminal.print("EXTRACTING BROWSER_HISTORY...", 'error');
+                Terminal.print("EXTRACTING COOKIES...", 'error');
+                Terminal.print("DATA_DUMP_COMPLETE: CHECKING_REMOTE_SERVER.");
+            } else {
+                Terminal.print(`SYS_ERR: COMMAND '${cmd}' IS RESTRICTED OR INVALID.`, 'error');
+                AudioEngine.playBip(150, 0.3, 'sawtooth');
+            }
+        }, 500);
+    }
+});
+
+// --- INIT ---
+window.onload = () => {
+    Radar.init();
+    startBreach();
+    initCam();
+    
+    // Clock
+    setInterval(() => {
+        const d = new Date();
+        document.getElementById('clock').textContent = d.toISOString().replace('T', ' ').replace('Z', '');
+    }, 50);
+
+    // Packet counter
+    let pkts = 0;
+    setInterval(() => {
+        pkts += Math.floor(Math.random()*100);
+        document.getElementById('packets-stat').textContent = `PACKETS_CAPTURED: ${pkts}`;
+    }, 200);
+};
+
+</script>
 </body>
 </html>
