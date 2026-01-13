@@ -2,127 +2,143 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>FSOCIETY NODE</title>
+<title>FSOCIETY TERMINAL</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-@keyframes flicker {
-  0% {opacity:1}
-  50% {opacity:.96}
-  100% {opacity:1}
+:root {
+  --green:#00ff9c;
+  --red:#ff3333;
 }
-@keyframes glitch {
-  0% {text-shadow:2px 0 red,-2px 0 cyan}
-  50% {text-shadow:-2px 0 red,2px 0 cyan}
-  100% {text-shadow:2px 0 red,-2px 0 cyan}
-}
+
+* { box-sizing:border-box; }
 
 body {
   margin:0;
   background:black;
-  color:#00ff9c;
-  font-family:Courier, monospace;
-  min-height:100vh;
+  color:var(--green);
+  font-family:monospace;
   display:flex;
   justify-content:center;
   align-items:center;
-  animation:flicker .15s infinite;
-  cursor:crosshair;
-  user-select:none;
+  min-height:100vh;
 }
 
-#noise {
-  position:fixed;
-  inset:0;
-  background:radial-gradient(#ffffff10 1px, transparent 1px);
-  background-size:3px 3px;
-  opacity:.05;
-  pointer-events:none;
-}
-
+/* TERMINAL */
 #terminal {
   width:100%;
   max-width:480px;
+  border:2px solid var(--green);
   padding:20px;
-  border:2px solid #00ff9c;
-  box-shadow:0 0 40px #00ff9c55;
+  box-shadow:0 0 30px #00ff9c55;
 }
 
+/* HEADERS */
 h1 {
-  font-size:14px;
   text-align:center;
+  font-size:15px;
   letter-spacing:3px;
-  animation:glitch .35s infinite;
+  margin-bottom:20px;
 }
 
-.line {
+/* LOGIN INFO */
+.status {
   font-size:12px;
-  opacity:.75;
+  opacity:.8;
+  margin-bottom:6px;
 }
 
-input,button {
+/* INPUTS */
+input, button {
   width:100%;
   background:black;
-  border:1px solid #00ff9c;
-  color:#00ff9c;
+  border:1px solid var(--green);
+  color:var(--green);
   padding:12px;
   margin-top:10px;
   font-family:inherit;
 }
 
-button:hover {
-  background:#00ff9c;
-  color:black;
-  cursor:pointer;
+input:focus {
+  outline:none;
+  box-shadow:0 0 10px var(--green);
 }
 
+button {
+  cursor:pointer;
+  letter-spacing:2px;
+}
+
+button:hover {
+  background:var(--green);
+  color:black;
+}
+
+/* ERROR */
 #error {
-  color:#ff3333;
+  color:var(--red);
   text-align:center;
   margin-top:10px;
+  font-weight:bold;
 }
 
+/* CHAT */
 #chat { display:none; }
 
 #messages {
   height:240px;
-  overflow:auto;
-  border:1px solid #00ff9c;
+  overflow-y:auto;
+  border:1px solid var(--green);
   padding:10px;
   margin-bottom:10px;
+  background:black;
 }
 
-.msg { margin-bottom:6px; }
-.sys { color:#ffaa00; }
+.msg {
+  margin-bottom:6px;
+  word-wrap:break-word;
+}
+
 .me { color:#00ffaa; }
+.sys { color:#ffaa00; }
+
+/* MOBILE */
+@media (max-width:480px) {
+  #terminal {
+    border:none;
+    box-shadow:none;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+  #messages { flex:1; }
+}
 </style>
 </head>
 
-<body oncontextmenu="return false">
-
-<div id="noise"></div>
+<body>
 
 <div id="terminal">
 
 <!-- LOGIN -->
 <div id="login">
-<h1>FSOCIETY ACCESS</h1>
-<div class="line">> routing traffic</div>
-<div class="line">> encryption active</div>
-<div class="line">> unauthorized access logged</div>
+  <h1>FSOCIETY ACCESS NODE</h1>
+  <div class="status">[+] Routing traffic through proxy</div>
+  <div class="status">[+] Encryption layer active</div>
+  <div class="status">[!] Unauthorized access will be logged</div>
 
-<input id="pseudo" placeholder="IDENTITY">
-<input id="code" type="password" placeholder="ACCESS KEY">
-<button id="loginBtn">ENTER</button>
-<div id="error"></div>
+  <input id="pseudo" placeholder="IDENTITY">
+  <input id="code" type="password" placeholder="ACCESS KEY">
+  <button id="loginBtn">INIT ACCESS</button>
+  <div id="error"></div>
 </div>
 
 <!-- CHAT -->
 <div id="chat">
-<h1>SECURE CHANNEL</h1>
-<div id="messages"></div>
-<input id="message" placeholder="> transmit">
-<button id="sendBtn">SEND</button>
+  <h1>SECURE CHANNEL</h1>
+  <div id="messages"></div>
+  <input id="message" placeholder="> type message">
+  <button id="sendBtn">SEND</button>
 </div>
 
 </div>
@@ -131,7 +147,7 @@ button:hover {
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
 
 <script>
-/* 🔥 FIREBASE CONFIG — COMPLET */
+/* FIREBASE INIT */
 firebase.initializeApp({
   apiKey: "AIzaSyCpo7up--nfVG4zj_Zeu4kB7pr34ad4ceM",
   authDomain: "lycee-europe-private.firebaseapp.com",
@@ -144,11 +160,19 @@ firebase.initializeApp({
 const db = firebase.firestore();
 const messagesRef = db.collection("messages_prives");
 
-/* STATE */
-let ACCESS_CODE = null;
-let currentUser = null;
+/* DOM */
+const loginBox = document.getElementById("login");
+const chatBox = document.getElementById("chat");
+const pseudoInput = document.getElementById("pseudo");
+const codeInput = document.getElementById("code");
+const errorBox = document.getElementById("error");
+const messagesBox = document.getElementById("messages");
+const messageInput = document.getElementById("message");
 
-/* LOAD ACCESS */
+let ACCESS_CODE = null;
+let currentPseudo = null;
+
+/* LOAD ACCESS CODE */
 async function loadCode() {
   const doc = await db.collection("config").doc("access").get();
   if (doc.exists) ACCESS_CODE = doc.data().code;
@@ -156,72 +180,62 @@ async function loadCode() {
 
 /* LOGIN */
 async function login() {
-  const p = pseudo.value.trim();
-  const c = code.value.trim();
+  const pseudo = pseudoInput.value.trim();
+  const code = codeInput.value.trim();
 
   if (!ACCESS_CODE) await loadCode();
 
-  if (!p || !c) {
-    error.textContent = "AUTH FAILED";
+  if (!pseudo || !code) {
+    errorBox.textContent = "AUTH FAILED";
     return;
   }
 
-  if (c !== ACCESS_CODE) {
-    error.textContent = "ACCESS DENIED";
+  if (code !== ACCESS_CODE) {
+    errorBox.textContent = "ACCESS DENIED";
     return;
   }
 
-  currentUser = p;
-  login.style.display = "none";
-  chat.style.display = "block";
-  systemMessage("SECURE LINK ESTABLISHED");
+  currentPseudo = pseudo;
+  loginBox.style.display="none";
+  chatBox.style.display="block";
+  systemMessage("Secure channel established");
   listenMessages();
 }
 
-/* SYSTEM MSG */
+/* SYSTEM MESSAGE */
 function systemMessage(text) {
-  messages.innerHTML += `<div class="msg sys">[SYS] ${text}</div>`;
+  messagesBox.innerHTML += `<div class="msg sys">[SYSTEM] ${text}</div>`;
 }
 
 /* LISTEN CHAT */
 function listenMessages() {
-  messagesRef.orderBy("timestamp").onSnapshot(snapshot => {
-    messages.innerHTML = "";
-    snapshot.forEach(doc => {
-      const m = doc.data();
-      messages.innerHTML += `
-        <div class="msg ${m.pseudo === currentUser ? 'me' : ''}">
-          [${m.pseudo}] ${m.message}
-        </div>`;
+  messagesRef.orderBy("timestamp").onSnapshot(snap=>{
+    messagesBox.innerHTML="";
+    snap.forEach(d=>{
+      const m=d.data();
+      const cls = m.pseudo===currentPseudo?"me":"";
+      messagesBox.innerHTML+=`<div class="msg ${cls}">[${m.pseudo}] ${m.message}</div>`;
     });
-    messages.scrollTop = messages.scrollHeight;
+    messagesBox.scrollTop=messagesBox.scrollHeight;
   });
 }
 
 /* SEND */
 async function sendMessage() {
-  if (!message.value.trim()) return;
-
+  if (!messageInput.value.trim()) return;
   await messagesRef.add({
-    pseudo: currentUser,
-    message: message.value,
+    pseudo: currentPseudo,
+    message: messageInput.value,
     timestamp: firebase.firestore.FieldValue.serverTimestamp()
   });
-
-  message.value = "";
+  messageInput.value="";
 }
 
 /* EVENTS */
-loginBtn.onclick = login;
-sendBtn.onclick = sendMessage;
-message.onkeydown = e => { if (e.key === "Enter") sendMessage(); };
-
-/* FAKE ANTI-DEV */
-document.addEventListener("keydown", e => {
-  if (e.key === "F12") {
-    document.body.innerHTML =
-      "<h1 style='color:red;text-align:center'>SESSION TERMINATED</h1>";
-  }
+document.getElementById("loginBtn").onclick = login;
+document.getElementById("sendBtn").onclick = sendMessage;
+messageInput.addEventListener("keydown",e=>{
+  if(e.key==="Enter") sendMessage();
 });
 </script>
 
